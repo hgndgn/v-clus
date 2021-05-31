@@ -1,0 +1,11 @@
+select {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.hide-select-arrow.select:not(.is-multiple):not(.is-loading)::after {
+  border-color: black !important;
+}
+
+.is-light {
+  font-size: 0.8rem !important;
+}

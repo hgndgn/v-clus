@@ -1,0 +1,120 @@
+<div class="vpc">
+  <div class="vpc-headline">
+    <div class="flex items-center gap-1">
+      <i class="fas fa-cloud mx-1"></i>
+      <span class="h4"> {{ vpc.name }} </span>
+    </div>
+    <div class="flex items-center">
+      <div *ngIf="!isAwsVpc" class="dropdown is-hoverable mr-2">
+        <div class="dropdown-trigger">
+          <button aria-haspopup="true" [attr.aria-controls]="vpc.id">
+            <span></span>
+            <span class="icon is-small">
+              <i class="fas fa-angle-down" aria-hidden="true"></i>
+            </span>
+          </button>
+        </div>
+
+        <div class="dropdown-menu" [attr.id]="vpc.id" role="menu">
+          <div class="dropdown-content">
+            <a class="dropdown-item" (click)="addNewSubnet()" [ngClass]="{ 'no-event': !vpc.hasValidCidr }">
+              <i class="fas fa-plus mt-1 mr-2"></i>
+              Add Subnet
+            </a>
+            <a class="dropdown-item" (click)="openVpcModal()">
+              <i class="fas fa-cog mt-1 mr-2"></i>
+              Settings
+            </a>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item" (click)="removeVpc()">
+              <i class="fas fa-times mt-sm mr-2 text-sm text-red-600"></i>
+              Remove
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subnets-wrapper">
+    <div class="flex justify-center items-center p-2 is-marginless justify-center">
+      <div class="w-full sm:grid sm:grid-cols-1 md:grid-cols-2 gap-4">
+        <div *ngFor="let subnet of vpc.subnets">
+          <div class="subnet" droppable [dropScope]="'ec2'" (onDrop)="addNewInstance(subnet)"
+            [dragHintClass]="'drag-hint'" [dragOverClass]="'drag-over'">
+
+            <div class="subnet-headline rounded" [ngClass]="{ 'justify-center': isAwsVpc }"
+              [ngStyle]="{ height: isAwsVpc ? '40px' : '25px' }">
+              <div class="flex"
+                [ngClass]="{ 'flex-column': isAwsVpc, 'items-start': isAwsVpc, 'items-center': !isAwsVpc }">
+                <span class="subnet-name text-xs">
+                  {{ subnet.name }}
+                </span>
+                <span *ngIf="!isAwsVpc" class="text-sm has-text-grey mx-2">|</span>
+                <span class="subnet-cidr text-xs" [ngClass]="{ 'self-center': isAwsVpc, 'self-end': !isAwsVpc }">
+                  {{ subnet.getCidr() }}
+                </span>
+              </div>
+
+              <div *ngIf="!isAwsVpc" class="dropdown is-hoverable mr-2">
+                <div class="dropdown-trigger">
+                  <button aria-haspopup="true" [attr.aria-controls]="subnet.id">
+                    <span></span>
+                    <span class="icon is-small">
+                      <i class="fas fa-angle-down text-white" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+                <div class="dropdown-menu" [attr.id]="subnet.id" role="menu">
+                  <div class="dropdown-content">
+                    <a class="dropdown-item" (click)="openSubnetModal(subnet)">
+                      <i class="fas fa-cog mt-1 mr-2"></i>
+                      Settings
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item" (click)="removeSubnet(subnet)">
+                      <i class="fas fa-times mt-sm mr-2 text-sm text-red-600"></i>
+                      Remove
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="subnet-content grid grid-cols-3 sm:grid-cols-2 gap-4">
+              <div *ngFor="let i of subnet.instances" class="flex items-center justify-center">
+
+                <div class="instance relative {{ !i.imageId ? 'border-b-2 border-red-700' : '' }}" (click)="openInstanceModal(i)"
+                  [title]="!i.imageId ? 'Image ID required' : ''">
+                  <button class="delete remove-instance is-small has-background-danger"
+                    (click)="removeInstance(subnet.id, i)" style="z-index: 1"></button>
+                  <div class="relative flex">
+                    <i class="fas fa-tv"></i>
+                    <span class="instance-id cursor-pointer"><span style="font-size: 0.7rem">i</span>{{ i.id }}</span>
+                  </div>
+                  <span class="has-background-grey-lighter font-bold text-xs px-1 rounded-full">
+                    <span class="text-xs">{{ i.amount }}</span>
+                    <span class="font-normal has-text-grey mx-1">x</span>
+                    <span class="text-xs">{{ i.type }}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!---------   MODALS   --------->
+<vclus-instance-settings-modal *ngIf="showInstanceModal" [instance]="instanceModalData.instance" [keyPairs]="keyPairs"
+  (onClose)="onInstanceModalClosed($event)" [isAwsInstance]="isAwsVpc" [securityGroups]="securityGroups">
+  <p class="modal-card-title">Configure Instance</p>
+</vclus-instance-settings-modal>
+
+<vclus-subnet-modal *ngIf="showSubnetModal" [vpc]="vpc" [subnet]="subnetModalData.subnet"
+  (onClose)="onSubnetModalClosed($event)">
+  <p class="modal-card-title">Configure Subnet</p>
+</vclus-subnet-modal>

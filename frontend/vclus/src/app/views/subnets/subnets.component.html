@@ -1,0 +1,219 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="block">
+            <div class="field flex flex-wrap justify-flex-end">
+              <div class="field is-flex has-text-right">
+                <a class="small-button is-light has-margin-right-10" [ngClass]="{ 'is-loading': refreshingSubnets }"
+                  (click)="refreshSubnets()">
+                  <span class="icon">
+                    <i class="fas fa-sync-alt"></i>
+                  </span>
+                  <span>refresh</span>
+                </a>
+
+                <a class="small-button is-primary" data-show="quickview" data-target="quickviewDefault"
+                  (click)="showQuickCreateSubnet()">
+                  <span class="icon">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>create</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="field">
+              <nav class="panel has-text-centered">
+                <p class="panel-heading is-size-6 has-text-weight-bold">
+                  Subnets
+                </p>
+                <div class="panel-block">
+                  <ng-container *ngIf="subnets.length > 0; else noSubnets">
+                    <div class="table-container is-full-width">
+                      <table class="w-full">
+                        <thead>
+                          <tr>
+                            <th class="border-b" scope="col" class="is-narrow">
+                              Name
+                            </th>
+                            <th class="border-b" scope="col">Id</th>
+                            <th class="border-b" scope="col">IPv4 CIDR</th>
+                            <th class="border-b" scope="col">VPC</th>
+                            <th class="border-b" scope="col">Zone</th>
+                            <th class="border-b" scope="col">State</th>
+                            <th class="border-b" scope="col" class="is-narrow"></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr *ngFor="let s of subnets" class="leading-7 hover:bg-gray-100">
+                            <td class="border-b">
+                              {{ s.name }}
+                            </td>
+
+                            <td class="border-b">
+                              {{ s.id }}
+                            </td>
+
+                            <td class="border-b">
+                              {{ s.ipv4Cidr }}
+                            </td>
+
+                            <td class="border-b">
+                              {{ s.vpcId }}
+                              <span *ngIf="getVpcOfSubnet(s.vpcId)"> | {{ getVpcOfSubnet(s.vpcId).name }}</span>
+                            </td>
+
+                            <td class="border-b">
+                              {{ s.availabilityZone }}
+                            </td>
+
+                            <td class="border-b">
+                              {{ s.state }}
+                            </td>
+
+                            <td class="border-b">
+                              <div class="icon delete-icon" (click)="deleteSubnet(s)" data-toggle="tooltip"
+                                title="Delete subnet">
+                                <i class="far fa-trash-alt has-text-danger scale-1"></i>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-container>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!---------   QUICKVIEW   --------->
+<div *ngIf="toggleQuickView" class="modal-background"
+  style="position: fixed !important; background-color: rgb(10 10 10 / 25%) !important;z-index: 10 !important;"></div>
+
+<div id="quickviewDefault" class="quickview" [ngClass]="{ 'is-active': toggleQuickView }" style="top: 64px">
+  <header class="quickview-header bg-blue-900 h-16 text-white">
+    <p class="font-bold uppercase" style="word-spacing: 4px">Create Subnet</p>
+    <span class="delete" data-dismiss="quickview" (click)="toggleQuickView = false"></span>
+  </header>
+
+  <div class="quickview-body p-4">
+    <div class="quickview-block">
+
+      <ng-container *ngIf="allVpcs.length == 0; else createSubnetBlock">
+        <div class="flex w-full flex-column align-items-center justify-center p-2">
+          <span class="p-2">
+            No VPCs found
+          </span>
+          <a [routerLink]="['/vclus/vpcs']">Create VPC</a>
+        </div>
+      </ng-container>
+
+      <ng-template #createSubnetBlock>
+        <div class="grid grid-cols-10 gap-y-3">
+          <!-- Subnet Name -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm text-sm">Name</span>
+          </div>
+
+          <div class="col-span-8">
+            <input class="input" type="text" name="subNet"
+              [ngClass]="{ 'is-danger': subNet.invalid || awsSubnet.name.trim().length == 0 }"
+              [(ngModel)]="awsSubnet.name" #subNet="ngModel" required />
+
+            <p *ngIf="subNet.invalid || awsSubnet.name.trim().length == 0" class="ml-1 text-red-500 text-xs">
+              required
+            </p>
+          </div>
+
+          <!-- VPC -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">VPC</span>
+          </div>
+
+          <div class="col-span-8">
+            <div class="select is-small w-full">
+              <select class="w-full" data-toggle="tooltip" title="Select VPC of the subnet"
+                (change)="setSelectedVpc($event.target.value)">
+                <option *ngFor="let vpc of allVpcs" [value]="vpc.id">
+                  {{ vpc.id }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- VPC CIDR -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">VPC CIDR</span>
+          </div>
+
+          <div class="col-span-8">
+            <div class="select is-small w-full">
+              <select class="w-full" data-toggle="tooltip" (change)="setSelectedVpcCidr($event.target.value)">
+                <option *ngFor="let cidr of selectedAwsVpc?.ipv4Cidr" [value]="cidr">
+                  {{ cidr }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subnet CIDR -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">Subnet CIDR</span>
+          </div>
+
+          <div class="col-span-8">
+            <div class="flex justify-between flex-column relative w-full">
+              <div class="relative w-full">
+                <input class="input valid-cidr" name="vpcCidr" [(ngModel)]="awsSubnet.cidrIp" required
+                  [autocomplete]="undefined" #cidr="ngModel" [ngClass]="{ 'is-danger': !awsSubnet.hasValidCidr() }"
+                  placeholder="ex: 10.0.0.0">
+
+                <span class="absolute font-bold ml-1 mr-3 cursor-pointer" style="right: -4px">
+                  <select class="select is-small bg-transparent cursor-pointer" data-toggle="tooltip"
+                    title="Select Instance Type" name="cidrSize" (change)="awsSubnet.cidrSize = $event.target.value">
+                    <option *ngFor="let size of cidrSizes" [value]="size" [selected]="awsSubnet.cidrSize == size">
+                      /{{ size }}
+                    </option>
+                  </select>
+                </span>
+              </div>
+              <p *ngIf="!awsSubnet.hasValidCidr() || cidr.invalid" class="ml-1 text-red-500 text-xs">
+                invalid CIDR
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="quickview-footermodal-card-foot flex justify-flex-end align-items-center h-16 gap-3">
+          <button class="small-button w-full" (click)="toggleQuickView = false">Cancel</button>
+          <button class="small-button is-primary w-full" (click)="createSubnet()"
+            [disabled]="subNet.invalid || !awsSubnet.hasValidCidr() || awsSubnet.name.trim().length == 0">Create</button>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+</div>
+
+<!---------   ERROR   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>
+
+<!---------   TEMPLATES   --------->
+<ng-template #noSubnets>
+  <div class="column">
+    <span class="is-size-6">No subnets found in this region</span>
+  </div>
+</ng-template>

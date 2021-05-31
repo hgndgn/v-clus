@@ -1,0 +1,24 @@
+.json-viewer-wrapper {
+  overflow: auto;
+  height: 100%;
+}
+
+::ng-deep {
+  .ngx-json-viewer {
+    overflow: auto !important;
+    font-family: unset !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+.modal-card-body {
+  overflow: hidden;
+}
+
+.modal-card-head {
+  padding: 10px 15px;
+}
+
+.modal-card-foot {
+  padding: 10px 15px;
+}

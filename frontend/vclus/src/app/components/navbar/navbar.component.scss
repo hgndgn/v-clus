@@ -1,0 +1,12 @@
+@import '../../../assets/styles/variables';
+
+.navbar-wrapper {
+  background-color: var(--vclus-primary);
+}
+.nav-i-d:hover .nav-i-d-content {
+  display: block;
+}
+
+.nav-i-d-content {
+  top: 2.3rem;
+}

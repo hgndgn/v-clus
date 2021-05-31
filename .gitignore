@@ -1,0 +1,40 @@
+# IDE
+.vscode
+.editorconfig
+.scannerwork
+*.editorconfig
+**/*.editorconfig
+
+# PYTHON
+*.pyc
+*/__pycache__
+__pycache__/
+!**/__pycache__/
+
+# FOLDERS
+.db
+
+# LOG
+.log
+*.log
+**/*.log
+
+# SONAR
+.scannerwork/
+
+# BUILD
+api/rest/static
+
+# LATEX
+*.aux
+**/*.aux
+*.synctex.gz
+**/*.synctex.gz
+*.fdb_latexmk
+**/*.fdb_latexmk
+*.blg
+**/*.blg
+*.fls
+**/*.fls
+*.gz
+**/*.gz

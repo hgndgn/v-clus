@@ -1,0 +1,35 @@
+.card-content {
+  min-height: 10rem !important  ;
+}
+
+.spinner {
+  position: absolute;
+  text-align: center;
+  margin-top: 3rem;
+  margin-left: 5px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #16499b;
+  border-radius: 50%;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

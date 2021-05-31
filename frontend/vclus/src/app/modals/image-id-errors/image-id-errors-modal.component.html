@@ -1,0 +1,52 @@
+<div class="errors-modal modal is-active">
+  <div class="modal-background "></div>
+
+  <div class="modal-card" style="height: min-content;">
+    <header class="modal-card-head flex justify-center has-text-centered p-4 has-background-danger-dark">
+      <p class="modal-card-title has-text-white">
+        Missing Image ID's
+      </p>
+      <button class="delete" aria-label="close" (click)="onClose.emit()"></button>
+    </header>
+
+    <div class="modal-card-body">
+      <div class="bg-gray-200 px-2 rounded" style="font-size: 1rem">
+        Following instances does not have image ID's:
+      </div>
+      <div class="content">
+        <ul class="mt-0">
+          <li *ngFor="let vpc of getVpcKeysOfImageIdErrors()" class="mt-0">
+            <span class="text-sm font-bold">
+              {{ vpc }}
+            </span>
+            <ul class="mt-0">
+              <li *ngFor="let subnet of getSubnetKeysOfImageIdErrors(vpc)" class="mt-0">
+                <span class="text-sm">
+                  {{ subnet }}
+                </span>
+                <ul class="mt-0">
+                  <li *ngFor="let instance of imageIdErrors[vpc][subnet]" class="mt-0">
+                    <span class="text-xs">
+                      {{ instance }}
+                      <span class="ml-2">
+                        (<span style="margin: 0 2px">i{{ instance.split("-")[1] }}</span>)
+                      </span>
+                    </span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="modal-card-foot has-text-right p-2">
+      <div class="is-full-width has-text-right">
+        <button class="small-button is-light" (click)="onClose.emit()">
+          Close
+        </button>
+      </div>
+    </footer>
+  </div>
+</div>

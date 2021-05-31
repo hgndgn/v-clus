@@ -1,0 +1,268 @@
+<div class="container">
+  <ng-container *ngIf="vpcIds.length == 0; else createGroupBlock">
+    <div class="flex w-full flex-column align-items-center justify-center p-2">
+      <span class="p-2">
+        No VPCs found
+      </span>
+      <span>
+        You must <a class="inline-flex" [routerLink]="['/vclus/vpcs']">create a VPC</a>, in order to create a security group
+      </span>
+    </div>
+  </ng-container>
+
+  <ng-template #createGroupBlock>
+    <form #mainForm="ngForm" (ngSubmit)="onSubmit(mainForm)">
+      <nav class="panel has-text-centered">
+        <div class="panel-heading columns is-multiline">
+          <div class="column">
+            <div class="field">
+              <div class="field is-horizontal">
+                <div class="field-label has-text-left">
+                  <label class="label">Group Name</label>
+                </div>
+
+                <div class="field-body">
+                  <div class="field">
+                    <div class="control">
+                      <input class="input" type="text" [ngClass]="{
+                        'is-danger': !groupname.valid && groupname.touched
+                      }" name="groupName" [(ngModel)]="groupName" required #groupname="ngModel" />
+                    </div>
+
+                    <p [ngClass]="{
+                      help: !groupname.valid && groupname.touched,
+                      'is-hidden': groupname.valid || !groupname.touched
+                    }" class="is-danger">
+                      Group name required
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field is-horizontal">
+                <div class="field-label has-text-left">
+                  <label class="label">Description</label>
+                </div>
+
+                <div class="field-body">
+                  <div class="field">
+                    <div class="control">
+                      <input class="input" type="text" [ngClass]="{
+                        'is-danger':
+                          !groupdescription.valid && groupdescription.touched
+                      }" name="groupdescription" [(ngModel)]="groupDescription" required #groupdescription="ngModel" />
+                    </div>
+
+                    <p [ngClass]="{
+                      help: !groupdescription.valid && groupdescription.touched,
+                      'is-hidden':
+                        groupdescription.valid || !groupdescription.touched
+                    }" class="is-danger">
+                      Description required
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="column is-narrow">
+            <div class="field has-text-right">
+              <button class="small-button is-primary" type="submit" [disabled]="mainForm.invalid">
+                <i class="fas fa-check"></i>
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-block columns">
+          <div class="column" style="max-width: 100%;">
+            <form #innerForm="ngForm">
+              <div class="block">
+                <div class="block">
+                  <div class="field has-text-left">
+                    <input class="is-checkradio is-small is-info" id="inb" type="radio"
+                      [checked]="ruleTab === 1 ? 'checked' : ''" (change)="onRuleTabChange(1)" />
+                    <label for="inb">Inbound</label>
+
+                    <input class="is-checkradio is-small is-info" id="outb" type="radio"
+                      [checked]="ruleTab === 2 ? 'checked' : ''" (change)="onRuleTabChange(2)" />
+                    <label for="outb">Outbound</label>
+                  </div>
+                </div>
+
+                <div class="field is-horizontal">
+                  <div class="field-body">
+                    <div class="field-label has-text-left">
+                      <label class="label">Vpc</label>
+                    </div>
+
+                    <div class="field-body">
+                      <div class="field">
+                        <div class="control flex">
+                          <div class="select is-rounded">
+                            <select (change)="onVpcChange($event.target.value)">
+                              <option *ngFor="let id of vpcIds" [ngValue]="id">
+                                {{ id }}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label">Protocol</label>
+                  </div>
+
+                  <div class="field-body">
+                    <div class="field">
+                      <div class="control flex">
+                        <div class="select is-rounded">
+                          <select (change)="onProtocolChange($event.target.value)">
+                            <option *ngFor="let p of protocols" [ngValue]="p">
+                              {{ p['name'] }}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label">Port Range</label>
+                  </div>
+
+                  <div class="field-body fit-content">
+                    <div class="field is-grouped">
+                      <div class="flex justify-start w-full gap-2">
+                        <span class="flex align-self-center text-sm mx-2">From:</span>
+                        <input class="input" style="width: 4rem;" type="number" name="fromPort" min="0" max="65535"
+                          placeholder="0" [(ngModel)]="currentRule.fromPort" [disabled]="!currentRule.isCustom()"
+                          pattern="[0-9]+" step="1" [ngClass]="{ 'is-danger': !currentRule.isValidFromPort() }"
+                          #fromPort="ngModel" required />
+                        <span class="flex align-self-center text-sm mx-2">To:</span>
+                        <input class="input" style="width: 4rem;" type="number" name="toPort" min="0" max="65535"
+                          placeholder="65535" [(ngModel)]="currentRule.toPort" [disabled]="!currentRule.isCustom()"
+                          pattern="[0-9]+" step="1" [ngClass]="{ 'is-danger': !currentRule.isValidToPort() }"
+                          #toPort="ngModel" required />
+
+                        <p *ngIf="fromPort.invalid || toPort.invalid"
+                          class="flex align-self-center ml-1 text-red-500 text-xs">
+                          'From' port must be a number and lower than or equal to 'To' port
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div [ngClass]="{ 'is-hidden': ruleTab === 2 }" class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label">Source</label>
+                  </div>
+
+                  <div class="field-body fit-content">
+                    <div class="field">
+                      <div class="control">
+                        <input class="input" type="text" placeholder="CIDR, IP or Security Group" name="source"
+                          #source="ngModel" [(ngModel)]="currentRule.source" [ngClass]="{
+                          'is-danger': !source.valid && source.touched
+                        }" required />
+                      </div>
+
+                      <p [ngClass]="{
+                        help: !source.valid && source.touched,
+                        'is-hidden': source.valid || !source.touched
+                      }" class="is-danger">
+                        required
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div [ngClass]="{ 'is-hidden': ruleTab === 1 }" class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label">Destination</label>
+                  </div>
+
+                  <div class="field-body fit-content">
+                    <div class="field">
+                      <div class="control">
+                        <input class="input" type="text" placeholder="CIDR, IP or Security Group" name="destination"
+                          #destination="ngModel" [(ngModel)]="currentRule.destination" [ngClass]="{
+                          'is-danger': !destination.valid && destination.touched
+                        }" required />
+                      </div>
+
+                      <p [ngClass]="{
+                        help: !destination.valid && destination.touched,
+                        'is-hidden': destination.valid || !destination.touched
+                      }" class="is-danger">
+                        required
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label">Description</label>
+                  </div>
+
+                  <div class="field-body fit-content">
+                    <div class="field">
+                      <div class="control">
+                        <input class="input" type="text" placeholder="Description" name="description"
+                          #description="ngModel" [(ngModel)]="currentRule.description" [ngClass]="{
+                          'is-danger': !description.valid && description.touched
+                        }" required />
+                      </div>
+
+                      <p [hidden]="description.valid || !description.touched" [ngClass]="{
+                        help: !description.valid && description.touched
+                      }" class="is-danger">
+                        required
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field is-horizontal">
+                  <div class="field-label has-text-left">
+                    <label class="label"></label>
+                  </div>
+
+                  <div class="field-body has-text-right fit-content">
+                    <div class="field">
+                      <button class="small-button is-success" type="button" (click)="addRule()"
+                        [disabled]="canAddRule(innerForm) || currentRule.description.length == 0 || fromPort.invalid || toPort.invalid">
+                        <i class="fas fa-plus"></i>
+                        Add Rule
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div *ngIf="inboundRules.length > 0 || outboundRules.length > 0" class="block">
+              <div [hidden]="ruleTab === 2">
+                <sg-rule-table [rules]="inboundRules" [ruleType]="'inbound'"></sg-rule-table>
+              </div>
+
+              <div [hidden]="ruleTab === 1">
+                <sg-rule-table [rules]="outboundRules" [ruleType]="'outbound'"></sg-rule-table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </form>
+  </ng-template>
+</div>

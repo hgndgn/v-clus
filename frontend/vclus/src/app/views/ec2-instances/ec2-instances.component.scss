@@ -1,0 +1,32 @@
+.table-container {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 12rem) !important;
+}
+
+table {
+  thead th {
+    &:first-child,
+    &:last-child {
+      min-width: 10rem !important;
+    }
+  }
+
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+.long-content {
+  max-width: 15rem;
+}
+
+.info-btn {
+  i {
+    font-size: 1rem;
+    color: rgb(105, 105, 105);
+  }
+
+  &:hover {
+    transform: scale(1.2) !important;
+  }
+}

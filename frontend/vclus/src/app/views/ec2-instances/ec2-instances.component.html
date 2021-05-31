@@ -1,0 +1,157 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="tabs is-small">
+                  <ul>
+                    <li [ngClass]="{ 'is-active': activeTab === 1 }" (click)="activeTab = 1">
+                      <a>
+                        All Instances
+                      </a>
+                    </li>
+                    <li class="{{ activeTab === 2 ? 'is-active' : '' }}" (click)="activeTab = 2">
+                      <a>
+                        Create EC2
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="level-right">
+              <div class="level-item">
+                <div [hidden]="activeTab === 2">
+                  <div class="field flex flex-wrap justify-flex-end">
+                    <a class="small-button is-light" [ngClass]="{ 'is-loading': refreshingInstances }"
+                      (click)="refreshInstances()">
+                      <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                      </span>
+                      <span>refresh</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div *ngIf="showCreateEc2Component" [hidden]="activeTab !== 2">
+            <create-ec2 (onSuccess)="refreshInstances()" (onCreatingInstances)="onCreatingInstances()"
+              [instances]="instances" [securityGroupsOfInstances]="securityGroupsOfInstances"></create-ec2>
+          </div>
+
+          <div [hidden]="activeTab !== 1">
+            <nav class="panel has-text-centered">
+              <p class="panel-heading is-size-6 has-text-weight-bold">
+                Instances
+              </p>
+              <div class="panel-block">
+                <!-- <div class="border-b"> -->
+                <ng-container *ngIf="instances.length > 0; else emptyTable">
+                  <div class="table-container is-full-width">
+                    <table class="table table-narrow is-full-width">
+                      <thead>
+                        <tr>
+                          <th scope="col">Public DNS</th>
+                          <th class="border-b" scope="col">IPv4 Public IP</th>
+                          <th class="border-b" scope="col">Launch Time</th>
+                          <th class="border-b" class="col is-narrow w-48"></th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr *ngFor="let i of instances" class="leading-9 hover:bg-gray-100">
+                          <td class="border-b" data-toggle="tooltip" [title]="i.id">
+                            <span>{{ i.id }}</span>
+                          </td>
+
+                          <td class="border-b">
+                            {{ i.type }}
+                          </td>
+
+                          <td class="border-b">
+                            <span class="tag is-uppercase has-text-weight-medium" [ngClass]="getEc2StateClass(i.state)">
+                              {{ i.state }}
+                            </span>
+                          </td>
+
+                          <td class="border-b">
+                            {{ i.zone }}
+                          </td>
+
+                          <td class="border-b">
+                            {{
+                            i.state === 'running' && i.publicDnsName
+                            ? i.publicDnsName
+                            : ''
+                            }}
+                          </td>
+
+                          <td class="border-b">
+                            {{
+                            i.state === 'running' && i.publicIpAddress
+                            ? i.publicIpAddress
+                            : ''
+                            }}
+                          </td>
+
+                          <td class="border-b" data-toggle="tooltip" [title]="i.launchTime">
+                            {{ i.launchTime | date }}
+                          </td>
+
+                          <td class="border-b">
+                            <div class="flex items-center justify-center">
+                              <instance-state-actions [instance]="i" (onStateChange)="onStateChange()" class="px-1">
+                              </instance-state-actions>
+                              <span class="icon info-btn">
+                                <i class="fas fa-info-circle" (click)="
+                                    selectedEc2 = i; showInfoModal = true
+                                  " data-toggle="tooltip" title="Info"></i>
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-container>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<instance-info-modal *ngIf="showInfoModal" [ec2]="selectedEc2" (onClose)="showInfoModal = false"></instance-info-modal>
+
+<!---------   TEMPLATES   --------->
+
+<ng-template #emptyTable>
+  <div class="column">
+    <span class="is-size-6">No instances found in this region</span>
+  </div>
+</ng-template>
+
+<ng-template #error>
+  <div class="block has-text-centered">
+    <div class="subtitle is-2">
+      Oops!
+    </div>
+    <div class="subtitle is-5">
+      Sorry, an error has occured!
+    </div>
+  </div>
+</ng-template>

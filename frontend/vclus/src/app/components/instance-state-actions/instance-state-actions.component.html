@@ -1,0 +1,41 @@
+<i
+  class="far fa-play-circle action px-1"
+  (click)="startInstance()"
+  data-toggle="tooltip"
+  title="Start Instance"
+  [ngClass]="{
+    'is-disabled':
+      instance.state === 'running' ||
+      instance.state === 'terminated' ||
+      !validState
+  }"
+  style="color: green;"
+>
+</i>
+
+<i
+  class="fas fa-stop-circle action px-1"
+  (click)="stopInstance()"
+  data-toggle="tooltip"
+  title="Stop Instance"
+  [ngClass]="{
+    'is-disabled':
+      instance.state === 'stopped' ||
+      instance.state === 'terminated' ||
+      !validState
+  }"
+  style="color: orange;"
+>
+</i>
+
+<i
+  class="fas fa-ban action px-1"
+  (click)="terminateInstance()"
+  data-toggle="tooltip"
+  title="Terminate Instance"
+  [ngClass]="{
+    'is-disabled': instance.state === 'terminated' || !validState
+  }"
+  style="color: red;"
+>
+</i>

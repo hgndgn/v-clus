@@ -1,0 +1,219 @@
+<div *ngIf="isLoading || creatingCluster; else main">
+  <spinner [loadingText]="loadingText"></spinner>
+</div>
+
+<ng-template #main>
+  <div *ngIf="!hasError; else error">
+
+    <div class="notification p-0">
+
+      <div class="flex justify-between items-center p-2 gap-2">
+        <div class="flex justify-evenly items-center gap-2 divide-gray-500 divide-x">
+          <div class="dropdown" [ngClass]="{ 'is-active': toggleLoadCluster }">
+            <div class="dropdown-trigger">
+              <button id="load-cluster-btn" [disabled]="clusterNames.length === 0" data-toggle="tooltip"
+                [title]="clusterNames.length === 0 ? 'No clusters found' : ''" class="button is-small is-rounded m-0"
+                aria-haspopup="true" aria-controls="dropdown-menu3" (click)="toggleLoadCluster = !toggleLoadCluster">
+                <span>Load Cluster</span>
+                <span class="icon is-small">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu3" role="menu">
+              <div class="dropdown-content">
+                <a class="dropdown-item" *ngFor="let clusterName of clusterNames"
+                  (click)="loadClusterByName(clusterName)">
+                  {{ clusterName }}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <div class="flex items-center align-center ml-2" data-toggle="tooltip" title="Save the cluster">
+              <label class="checkbox save-nw">
+                <input type="checkbox" (change)="saveCluster = !saveCluster" [checked]="saveCluster ? 'checked' : ''">
+                <span class="text-sm ml-1">Save Cluster</span>
+              </label>
+            </div>
+
+            <div class="flex flex-col relative">
+              <input class="input is-small is-fw-mobile" type="text" placeholder="Name" name="clustername"
+                [autocomplete]="undefined" #clustername="ngModel" [(ngModel)]="clusterName" [disabled]="!saveCluster"
+                [ngClass]="{
+                'is-danger':
+                  (clustername.invalid &&
+                  clustername.touched &&
+                    saveCluster) ||
+                  (saveCluster && hasRequiredError)
+              }" required />
+              <p *ngIf="clustername.invalid && clustername.touched" class="absolute ml-1 text-red-500 text-xs"
+                style="bottom: -17px;left: 4px;">
+                required
+              </p>
+            </div>
+
+            <div class="flex items-center">
+              <input class="input is-small is-fw-mobile" type="text" placeholder="Description" name="clusterdesc"
+                [autocomplete]="undefined" #clusterdesc="ngModel" [(ngModel)]="clusterDescription"
+                [disabled]="!saveCluster" />
+            </div>
+          </div>
+
+        </div>
+        <button class="small-button is-primary" (click)="onSubmit()" [disabled]="vclusVpcs.length == 0">
+          <i class="fas fa-check"></i>
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-start w-full gap-2">
+      <div
+        class="cluster-actions rounded-t-md p-0 flex justify-between w-full bg-gray-200  border border-gray-300 border-l-b">
+        <div class="flex justify-start items-center w-full p-2">
+          <button class="large-button is-rounded is-light" draggable [dragScope]="'ec2'">
+            <i class="fas fa-desktop mr-2"></i>
+            <span class="font-bold uppercase">DRAG INSTANCE</span>
+          </button>
+        </div>
+        <div class="flex justify-flex-end gap-2 p-2 w-full">
+          <div class="flex justify-center items-center">
+            <button class="large-button is-rounded is-info is-light" (click)="addEmptyVpc()">
+              <i class="fas fa-plus"></i>
+              ADD VPC
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clusters-wrapper rounded-b-lg" *ngIf="!isLoading"
+      [ngStyle]="{ padding: vclusVpcs.length == 0 ? '0' : ''}">
+      <ng-container *ngIf="vclusVpcs.length > 0">
+        <div class="w-full sm:grid sm:grid-cols-2 sm:gap-4">
+          <div *ngFor="let vpc of vclusVpcs">
+            <vclus-vpc [vpc]="vpc" [keyPairs]="keyPairs" (openVpcModal)="openVpcModal($event)"
+              (onDelete)="onDeleteCluster($event)"></vclus-vpc>
+          </div>
+        </div>
+      </ng-container>
+      <div *ngIf="vclusVpcs.length == 0" class="flex w-full justify-center p-2">
+        No VPCs found
+      </div>
+    </div>
+
+  </div>
+</ng-template>
+
+<!---------   Error Modal on Submit   --------->
+<div *ngIf="showImageIdErrors">
+  <image-id-errors [imageIdErrors]="imageIdErrors" (onClose)="showImageIdErrors = false"></image-id-errors>
+</div>
+
+
+<!---------   TEMPLATES   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>
+
+
+<!---------   VPC-MODAL   --------->
+<div *ngIf="vpcQuickViewData.show" class="modal-background"
+  style="position: fixed !important; background-color: rgb(10 10 10 / 25%) !important;z-index: 10 !important;"></div>
+<div id="quickviewDefault" class="quickview" [ngClass]="{ 'is-active': vpcQuickViewData.show }" style="top: 64px">
+  <header class="quickview-header flex-column bg-blue-900 h-16 text-white py-1">
+    <div class="flex justify-between w-full pt-3">
+      <p class="font-bold uppercase" style="word-spacing: 4px">Configure Vpc</p>
+      <span class="delete" data-dismiss="quickview" (click)="vpcQuickViewData.show = false"></span>
+    </div>
+  </header>
+
+  <div class="quickview-body p-4">
+    <div class="quickview-block">
+      <div class="flex w-full justify-flex-start pb-2">
+        <p class="cidr-warning flex justify-start items-center justify-start rounded bg-yellow-300 px-2 text-sm">
+          <i class="fas fa-exclamation-circle mr-1 mt-sm"></i>
+          <span class="h5">All subnet CIDRs will be updated after VPC CIDR is changed</span>
+        </p>
+      </div>
+
+      <div class="w-full py-1">
+        <dl class="m-0">
+          <div class="block sm:grid sm:grid-cols-6 sm:gap-2">
+            <dt class="flex items-center pb-1 sm:pb-0 sm:col-span-1 text-sm sm:text-sm font-bold">
+              Name Tag
+            </dt>
+            <dd class="sm:mt-0 col-span-5">
+              <input class="input" type="text" name="vpcName" [autocomplete]="undefined"
+                [(ngModel)]="vpcQuickViewData.vpcName" #vpcQuickViewName="ngModel"
+                [ngClass]="{ 'is-danger': vpcQuickViewName.invalid || vpcQuickViewData?.vpcName.trim().length == 0}"
+                required />
+              <p *ngIf="vpcQuickViewName.invalid || vpcQuickViewData?.vpcName.trim().length == 0"
+                class="ml-1 text-red-500 text-xs">
+                required
+              </p>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="w-full py-1">
+        <dl class="m-0">
+          <div class="block sm:grid sm:grid-cols-6 sm:gap-2">
+            <dt class="flex items-center pb-1 sm:pb-0 sm:col-span-1 text-sm sm:text-sm font-bold">
+              IPv4 CIDR
+            </dt>
+            <dd class="sm:mt-0 col-span-5 flex w-full items-center">
+              <div class="flex justify-between items-center relative w-full">
+                <input class="input" name="vpcCidr" required [(ngModel)]="vpcQuickViewData.vpcCidrIp" required
+                  [autocomplete]="undefined" #cidr="ngModel" [ngClass]="{ 
+                    'valid-cidr': hasValidCidr(),
+                    'is-danger': !hasValidCidr()
+                   }" placeholder="ex: 10.0.0.0" (input)="vpcQuickViewData.isValidCidr = false">
+
+                <span class="absolute font-bold ml-1 mr-3 cursor-pointer" style="right: 0">
+                  <select class="select is-small bg-transparent cursor-pointer" data-toggle="tooltip" name="cidrSize"
+                    title="Select Instance Type" [(ngModel)]="vpcQuickViewData.vpcCidrSize">
+                    <option *ngFor="let size of vpcQuickViewData.vpc?.vpcCidrSizes" [value]="size"
+                      [selected]="vpcQuickViewData.vpcCidrSize == size">
+                      /{{ size }}
+                    </option>
+                  </select>
+                </span>
+              </div>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="w-full" *ngIf="!hasValidCidr()">
+        <dl class="m-0">
+          <div class="block sm:grid sm:grid-cols-6 sm:gap-2">
+            <dt class="flex items-center pb-1 sm:pb-0 sm:col-span-1 text-sm sm:text-sm font-bold"></dt>
+            <dd class="sm:mt-0 col-span-5">
+              <div class="flex justify-between items-center text-red-500">
+                <span class="text-xs ml-2 italic text-red-500">
+                  invalid CIDR
+                </span>
+              </div>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+    </div>
+
+    <div class="quickview-footermodal-card-foot flex justify-flex-end align-items-center h-16 gap-3">
+      <button class="small-button w-full" (click)="vpcQuickViewData.show = false">
+        Cancel
+      </button>
+      <button class="small-button is-primary w-full"
+        [disabled]="!hasValidCidr() || vpcQuickViewData?.vpcName.trim().length == 0" (click)="onVpcModalClosed()">
+        Save
+      </button>
+    </div>
+
+  </div>
+</div>

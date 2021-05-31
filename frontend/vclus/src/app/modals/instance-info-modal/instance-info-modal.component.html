@@ -1,0 +1,56 @@
+<div class="modal is-active">
+  <div class="modal-background"></div>
+
+  <div class="modal-card" style="height: max-content;">
+    <header class="modal-card-head">
+      <p class="modal-card-title is-6">Instance Info</p>
+    </header>
+
+    <section class="modal-card-body">
+
+      <div class="grid grid-cols-10 gap-2">
+        <span class="col-span-2 text-sm font-bold">Id</span>
+        <span class="col-span-8 text-sm"> {{ ec2.id }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Type</span>
+        <span class="col-span-8 text-sm"> {{ ec2.type }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Image ID</span>
+        <span class="col-span-8 text-sm"> {{ ec2.imageId }}</span>
+
+        <span class="col-span-2 text-sm font-bold">State</span>
+        <span class="col-span-8 text-sm"> {{ ec2.state }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Zone</span>
+        <span class="col-span-8 text-sm"> {{ ec2.zone }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Public IP</span>
+        <span class="col-span-8 text-sm"> {{ ec2.publicIpAddress ? ec2.publicIpAddress : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Public DNS</span>
+        <span class="col-span-8 text-sm"> {{ ec2.publicDnsName ? ec2.publicDnsName : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Private IP</span>
+        <span class="col-span-8 text-sm"> {{ ec2.privateIpAddress ? ec2.privateIpAddress : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Private DNS</span>
+        <span class="col-span-8 text-sm"> {{ ec2.privateDnsName ? ec2.privateDnsName : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">VPC ID</span>
+        <span class="col-span-8 text-sm"> {{ ec2.vpcId ? ec2.vpcId : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Subnet ID</span>
+        <span class="col-span-8 text-sm"> {{ ec2.subnetId ? ec2.subnetId : '-' }}</span>
+
+        <span class="col-span-2 text-sm font-bold">Launch Time</span>
+        <span class="col-span-8 text-sm"> {{ ec2.launchTime ? ec2.launchTime : '-' }}</span>
+      </div>
+    </section>
+
+    <footer class="modal-card-foot">
+      <div class="is-full-width has-text-right">
+        <button class="small-button is-light" (click)="onClose.emit()">Close</button>
+      </div>
+    </footer>
+  </div>
+</div>

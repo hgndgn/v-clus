@@ -1,0 +1,91 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="block">
+            <div class="field flex flex-wrap justify-flex-end">
+              <div class="field has-text-right">
+                <a
+                  class="small-button is-light has-margin-right-10"
+                  [ngClass]="{ 'is-loading': refreshingKeypairs }"
+                  (click)="refreshKeypairs()"
+                >
+                  <span class="icon">
+                    <i class="fas fa-sync-alt"></i>
+                  </span>
+                  <span>refresh</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="field ">
+              <nav class="panel has-text-centered">
+                <p class="panel-heading is-size-6 has-text-weight-bold">
+                  Key Pairs
+                </p>
+                <div class="panel-block">
+                  <div
+                    *ngIf="keyPairs !== undefined && keyPairs.length > 0; else emptyTable"
+                    class="table-container is-full-width"
+                  >
+                    <table class="table table-narrow is-full-width">
+                      <thead>
+                        <tr>
+                          <th scope="col" class="is-narrow">Keypair ID</th>
+                          <th scope="col" class="is-narrow">Key Name</th>
+                          <th scope="col" class="is-narrow"></th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr *ngFor="let k of keyPairs">
+                          <td>
+                            <span>{{ k.KeyPairId }}</span>
+                          </td>
+                          <td>
+                            <span>{{ k.KeyName }}</span>
+                          </td>
+
+                          <td>
+                            <div class="flex justify-flex-end mr-2 align-items-center gap-3 divide-gray-500 divide-x">
+                              <a (click)="downloadKeypair(k.KeyName)">
+                                Download
+                              </a>
+
+                              <div
+                                class="flex delete-icon pl-3"
+                                (click)="deleteKeypair(k.KeyName)"
+                                data-toggle="tooltip"
+                                title="Delete Key Pair"
+                              >
+                                <i class="far fa-trash-alt has-text-danger scale-1"></i>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!---------   TEMPLATES   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>
+
+<ng-template #emptyTable>
+  <div class="column">
+    <span class="is-size-6">No keypairs found in this region</span>
+  </div>
+</ng-template>

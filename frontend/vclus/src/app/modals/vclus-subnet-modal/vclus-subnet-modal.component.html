@@ -1,0 +1,144 @@
+<div *ngIf="toggleQuickView" class="modal-background"
+  style="position: fixed !important; background-color: rgb(10 10 10 / 25%) !important;z-index: 10 !important;"></div>
+
+<div *ngIf="toggleQuickView" id="quickviewDefault" class="quickview" [ngClass]="{ 'is-active': toggleQuickView }"
+  style="top: 64px; width: 36rem;">
+  <header class="quickview-header bg-blue-900 h-16 text-white">
+    <p class="font-bold uppercase" style="word-spacing: 4px">Subnet Settings</p>
+    <span class="delete" data-dismiss="quickview" (click)="onClose(true)"></span>
+  </header>
+
+  <div class="quickview-body p-4">
+    <div class="quickview-block">
+
+      <ng-container *ngIf="toggleQuickView">
+
+        <div class="grid grid-cols-8 gap-y-3">
+
+          <!-- Subnet Name -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm text-sm">Name</span>
+          </div>
+
+          <div class="col-span-6">
+            <input class="input" type="text" name="subNet" [autocomplete]="undefined"
+              [ngClass]="{ 'is-danger': vclusSubnet.name.trim().length == 0 }" [(ngModel)]="vclusSubnet.name"
+              #subNet="ngModel" required />
+
+            <p *ngIf="vclusSubnet.name.trim().length == 0" class="ml-1 text-red-500 text-xs">
+              required
+            </p>
+          </div>
+
+          <!-- VPC -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">VPC</span>
+          </div>
+
+          <div class="col-span-6">
+            <input class="input" type="text" [value]="inputVpc.name" [autocomplete]="undefined" disabled />
+          </div>
+
+          <!-- VPC CIDR -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">VPC CIDR</span>
+          </div>
+
+          <div class="col-span-6">
+            <input class="input" type="text" [value]="inputVpc.cidr" disabled />
+          </div>
+
+          <!-- Subnet CIDR -->
+          <div class="col-span-2">
+            <span class="font-bold text-sm">Subnet CIDR</span>
+          </div>
+
+          <div class="col-span-6 flex align-items-center">
+            <div class="flex justify-between items-center relative w-full">
+              <div class="relative w-full">
+                <input class="input cidr-input" name="vpcCidr" [autocomplete]="undefined" [(ngModel)]="vclusSubnet.cidrIp"
+                  required [autocomplete]="undefined" #cidr="ngModel" [ngClass]="{ 'is-danger': !vclusSubnet.hasValidCidr() }"
+                  placeholder="ex: 10.0.0.0">
+
+                <span class="absolute font-bold ml-1 mr-3 cursor-pointer" style="right: -3px">
+                  <select class="select is-small bg-transparent" data-toggle="tooltip" title="Select Instance Type"
+                    name="cidrSize" (change)="vclusSubnet.cidrSize = $event.target.value">
+                    <option *ngFor="let size of inputVpc.vpcCidrSizes" [value]="size"
+                      [selected]="vclusSubnet.cidrSize == size">
+                      /{{ size }}
+                    </option>
+                  </select>
+                </span>
+                <p *ngIf="!vclusSubnet.hasValidCidr() || cidr.invalid" class="ml-1 text-red-500 text-xs">
+                  invalid CIDR
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-8 bg-grey-200 rounded-full px-2">
+            <span class="font-bold text-sm text-sm">Accepted CIDRs</span>
+          </div>
+
+          <div class="col-span-2 px-3">
+          </div>
+
+          <div class="col-span-6 flex">
+            <div class="relative w-full">
+              <input class="input cidr-input" name="subnetToAcceptCidr" [value]="subnetToAccept.cidrIp"
+                [autocomplete]="undefined" required [autocomplete]="undefined"
+                [ngClass]="{ 'is-danger': !subnetToAccept.hasValidCidr() }" maxlength="15" placeholder="ex: 10.0.0.0"
+                (input)="subnetToAccept.cidrIp = $event.target.value">
+
+              <span class="absolute font-bold ml-1 mr-3 cursor-pointer border-r border-gray-300 pr-1"
+                style="right: 52px">
+                <select class="select is-small bg-transparent cursor-pointer" data-toggle="tooltip"
+                  title="Select Instance Type" name="cidrSize" (change)="subnetToAccept.cidrSize = $event.target.value">
+                  <option *ngFor="let size of inputVpc.vpcCidrSizes" [value]="size" [selected]="size == '16'">
+                    /{{ size }}
+                  </option>
+                </select>
+              </span>
+              <p *ngIf="!subnetToAccept.hasValidCidr()" class="ml-1 text-red-500 text-xs">
+                invalid CIDR
+              </p>
+              <button class="absolute text-xs text-blue-500 hover:text-blue-700" style="right: 16px;top: 7px"
+                [ngClass]="{ 'is-disabled': !subnetToAccept.hasValidCidr() }" (click)="acceptCidr()"
+                [disabled]="!subnetToAccept.hasValidCidr()">
+                Accept
+              </button>
+            </div>
+          </div>
+
+          <!-- <div class="col-span-1 ml-2 flex align-items-center"> -->
+          <!-- <button class="text-xs text-blue-500 hover:text-blue-700" [ngClass]="{ 'is-disabled': !subnetToAccept.hasValidCidr() }" (click)="acceptCidr()"
+              [disabled]="!subnetToAccept.hasValidCidr()">
+              Accept
+            </button> -->
+          <!-- </div> -->
+
+          <!-- Accepted Subnet CIDR tags -->
+          <div class="col-span-2">
+          </div>
+
+          <div class="col-span-5">
+            <div class="w-full overflow-y-auto overflow-x-hidden gap-2" style="max-height: 9.2rem;">
+
+              <div class="cidr-tag inline-flex gap-1 justify-between align-items-center rounded-full p-1 m-1"
+                *ngFor="let cidr of vclusSubnet.acceptedSubnetCidrs">
+                <span class="text-sm">{{ cidr }}</span>
+                <button class="delete" (click)="vclusSubnet.removeAcceptedSubnetCidr(cidr)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quickview-footermodal-card-foot flex justify-flex-end align-items-center h-16 gap-3">
+          <button class="small-button w-full" (click)="onClose(true)">Cancel</button>
+          <button class="small-button is-primary w-full" (click)="onClose()"
+            [disabled]="subNet.invalid ||vclusSubnet.name.trim().length == 0 || !vclusSubnet.hasValidCidr()">Save</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

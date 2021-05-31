@@ -1,0 +1,194 @@
+<div class="w-full navbar-wrapper">
+  <div class="w-full container">
+    <nav class="">
+      <div class="max-w-7xl mx-auto">
+        <div class="relative flex items-center justify-space-between sm:h-16 h-12">
+          <div class="absolute inset-y-0 left-0 flex items-center justify-space-between sm:hidden w-full">
+            <button (click)="showOnMobile = !showOnMobile"
+              class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white focus:outline-none focus:text-white transition duration-150 ease-in-out">
+              <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16" />
+                <path class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="select pr-1">
+              <select class="is-small" style="max-width: 150px;" (change)="changeRegion($event.target.value)">
+                <option *ngFor="let r of regions" [value]="r.name" [selected]="regionName === r.name">
+                  {{ r.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="flex-shrink-0 flex items-center">
+            <!-- <div class="flex lg:hidden h-10 w-auto border rounded">
+              <div class="flex align-items-center justify-center p-1 bg-transparent text-white">V</div>
+              <div class="flex align-items-center justify-center h-10 w-24 bg-transparent text-white">
+                CLUS
+              </div>
+            </div>
+            <div class="flex hidden lg:flex h-6 w-auto border rounded">
+              <div class="flex align-items-center justify-center p-1 bg-white text-blue-900 font-bold"
+                style="border-top-left-radius: 3px;border-bottom-left-radius: 3px;">V</div>
+              <div class="flex align-items-center justify-center h-6 w-24 bg-transparent text-white">
+                CLUS
+              </div>
+            </div> -->
+            <!-- <img
+                class="block lg:hidden h-10 w-auto"
+                src="assets/logo/logo_transparent.png"
+                alt=""
+              /> -->
+            <!-- <div class="flex hidden lg:block"> -->
+            <!-- <img
+                class="hidden lg:block h-10 w-auto TEXT"
+                src="assets/logo/share.svg"
+                alt=""
+                  style="transform: rotate(-100grad)"
+                /> -->
+            <!-- </div> -->
+            <!-- <img class="block lg:hidden h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg" alt="Workflow">
+            <img class="hidden lg:block h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg" alt="Workflow"> -->
+          </div>
+          <div class="flex items-center w-full">
+            <!-- <div class="flex-shrink-0">
+              <img
+                class="block lg:hidden h-8 w-auto"
+                src="assets/logo.png"
+                alt=""
+              />
+              <img
+                class="hidden lg:block h-8 w-auto"
+                src="assets/logo.png"
+                alt=""
+              />
+            </div> -->
+            <div class="hidden w-full sm:flex sm:items-center sm:justify-center sm:ml-6">
+              <div class="flex">
+                <a class="nav-i mr-1" [routerLink]="['/vclus/clusters']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-network-wired"></i>
+                  </span>
+                  Cluster
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/vpcs']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-cloud"></i>
+                  </span>
+                  VPC
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/subnets']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-grip-vertical"></i>
+                  </span>
+                  Subnet
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/instances']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-server"></i>
+                  </span>
+                  EC2
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/amazon-image-ids']" routerLinkActive="nav-active-i">
+                  <span class="icon text-lg">
+                    <i class="fas fa-cube text-lg"></i>
+                  </span>
+                  AMI
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/keypairs']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-key"></i>
+                  </span>
+                  Key Pair
+                </a>
+                <a class="nav-i mr-1" [routerLink]="['/vclus/security-groups']" routerLinkActive="nav-active-i">
+                  <span class="icon">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  Security Group
+                </a>
+
+                <div class="nav-i-d mr-1">
+                  <button class="focus:outline-none">
+                    Utilities
+                    <i class="fa fa-caret-down"></i>
+                  </button>
+                  <div class="nav-i-d-content">
+                    <a class="nav-i-d-content-i" routerLink="docs/instance-types">Instance Types</a>
+                    <a class="nav-i-d-content-i" routerLink="docs/security-group-protocols">Security Group
+                      Protocols</a>
+                  </div>
+                </div>
+
+                <div class="select is-small is-rounded is-narrow pr-1">
+                  <select class="is-small" style="max-width: 150px;" (change)="changeRegion($event.target.value)">
+                    <option *ngFor="let r of regions" [value]="r.name" [selected]="regionName === r.name">
+                      {{ r.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ON MOBILE -->
+      <div [ngClass]="{ block: showOnMobile, hidden: !showOnMobile }" class="hidden sm:hidden">
+        <div class="px-2 pt-2 pb-3">
+          <a class="nav-i my-1" [routerLink]="['/vclus/clusters']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-network-wired"></i>
+            </span>
+            V-CLUS</a>
+          <a class="nav-i my-1" [routerLink]="['/vclus/vpcs']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-cloud"></i>
+            </span>
+            VPC</a>
+          <a class="nav-i my-1" [routerLink]="['/vclus/subnets']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-grip-vertical"></i>
+            </span>
+            Subnet</a>
+          <a class="nav-i my-1" [routerLink]="['/vclus/instances']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-server"></i>
+            </span>
+            EC2</a>
+          <a class="nav-i mr-1" [routerLink]="['/vclus/amazon-image-ids']" routerLinkActive="nav-active-i">
+            <span class="icon text-lg">
+              <i class="fas fa-cube text-lg"></i>
+            </span>
+            AMI
+          </a>
+          <a class="nav-i my-1" [routerLink]="['/vclus/keypairs']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-key"></i>
+            </span>
+            Key Pair</a>
+          <a class="nav-i my-1" [routerLink]="['/vclus/security-groups']" routerLinkActive="nav-active-i">
+            <span class="icon">
+              <i class="fas fa-lock"></i>
+            </span>
+            Security Group
+          </a>
+
+          <div class="flex flex-col">
+            <p class="nav-item text-white" style="font-weight: 700;">Utilities</p>
+            <ul>
+              <li>
+                <a class="nav-i ml-4 has-padding-10" routerLink="docs/instance-types">Instance Types</a>
+              </li>
+              <li>
+                <a class="nav-i ml-4 has-padding-10" routerLink="docs/security-group-protocols">Security Group
+                  Protocols</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>

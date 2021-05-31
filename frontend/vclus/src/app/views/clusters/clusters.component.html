@@ -1,0 +1,147 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="tabs is-small">
+                  <ul>
+                    <li [ngClass]="{ 'is-active': activeTab === 1 }" (click)="activeTab = 1">
+                      <a>
+                        Virtual Clusters
+                      </a>
+                    </li>
+                    <li [ngClass]="{ 'is-active': activeTab === 2 }" (click)="activeTab = 2">
+                      <a>
+                        Create Virtual Cluster
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="level-right">
+              <div class="level-item">
+                <div [hidden]="activeTab === 2">
+                  <div class="field flex flex-wrap justify-flex-end">
+                    <a class="small-button is-light" [ngClass]="{ 'is-loading': refreshingCluster }"
+                      (click)="refreshClusters()">
+                      <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                      </span>
+                      <span>refresh</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div [hidden]="activeTab !== 2">
+            <create-cluster *ngIf="showCreateClusterComponent" [clusters]="clusters" (onSuccess)="onClusterCreated()">
+            </create-cluster>
+          </div>
+
+          <div [hidden]="activeTab !== 1">
+            <nav class="panel has-text-centered">
+              <p class="panel-heading is-size-6 has-text-weight-bold">
+                Virutal Cluster
+              </p>
+              <div class="panel-block">
+                <div *ngIf="clusters && clusters.length > 0; else emptyClusters" class="table-container is-full-width">
+                  <table class="table is-narrow is-full-width">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">JSON</th>
+                        <th scope="col">Created</th>
+                        <th scope="col" class="is-narrow"></th>
+                      </tr>
+                    </thead>
+
+                    <ng-container>
+                      <tbody>
+                        <tr *ngFor="let cluster of clusters">
+                          <td>
+                            {{ cluster.name }}
+                          </td>
+
+                          <td>
+                            {{ cluster.description.trim().length > 0 ? cluster.description : '-' }}
+                          </td>
+
+                          <td>
+                            <button class="small-button is-light" (click)="openJsonViewerModal(cluster)">
+                              view
+                            </button>
+                          </td>
+
+                          <td>
+                            {{ cluster.createDate | date }}
+                          </td>
+
+                          <td>
+                            <div class="flex justify-flex-end mr-2 align-items-center gap-3 divide-gray-500 divide-x"
+                              style="min-width: max-content">
+                              <!-- <a [href]="downloadJson(cluster)" [download]="cluster.name + '.json'">
+                                Download
+                              </a> -->
+
+                              <a (click)="viewRawJson(cluster.vclusVpcs)">View Raw</a>
+
+                              <div class="flex delete-icon pl-3" (click)="deleteCluster(cluster)" data-toggle="tooltip"
+                                title="Delete Key Pair">
+                                <i class="far fa-trash-alt has-text-danger scale-1"></i>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </ng-container>
+                  </table>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!---------   TEMPLATES   ------->
+
+<json-viewer *ngIf="showJsonViewer" [data]="currentCluster" (onClose)="showJsonViewer = false"></json-viewer>
+
+<ng-template #emptyClusters>
+  <div class="column">
+    <span class="is-size-6">No virtual clusters found</span>
+  </div>
+</ng-template>
+
+<ng-template #emptyTable>
+  <div class="column">
+    <span class="is-size-6">No instances found in this region</span>
+  </div>
+</ng-template>
+
+<ng-template #error>
+  <div class="block has-text-centered">
+    <div class="subtitle is-2">
+      Oops!
+    </div>
+    <div class="subtitle is-5">
+      Sorry, an error has occured!
+    </div>
+  </div>
+</ng-template>

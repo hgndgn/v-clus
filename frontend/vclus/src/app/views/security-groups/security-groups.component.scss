@@ -1,0 +1,14 @@
+.table,
+.table-sm {
+  & tbody tr td {
+    vertical-align: middle !important;
+  }
+}
+
+.table,
+.table-sm {
+  thead tr th {
+    font-size: 0.9rem !important;
+    min-width: 6rem !important;
+  }
+}

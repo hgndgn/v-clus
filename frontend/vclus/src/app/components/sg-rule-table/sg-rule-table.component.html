@@ -1,0 +1,36 @@
+<div class="table-container">
+  <table class="table is-full-width">
+    <thead>
+      <tr>
+        <th class="">Name</th>
+        <th class="">Protocol</th>
+        <th class="">Port Range</th>
+        <th class="">{{ ruleType === 'inbound' ? 'Source' : 'Destination' }}</th>
+        <th class="">Description</th>
+        <th ></th>
+      </tr>
+    </thead>
+
+    <ng-container *ngIf="rules.length > 0; else emptyMessageIn">
+      <tbody *ngFor="let r of rules">
+        <tr>
+          <td>{{ r.name}}</td>
+          <td>{{ r.protocol }}</td>
+          <td *ngIf="r.fromPort !== r.toPort">{{ r.fromPort }}-{{ r.toPort }}</td>
+          <td *ngIf="r.fromPort === r.toPort">{{ r.fromPort }}</td>
+          <td>{{ ruleType === 'inbound' ? r.source : r.destination }}</td>
+          <td>{{ r.description }}</td>
+          <td>
+            <a class="delete has-background-danger" (click)="remove(r)"></a>
+          </td>
+        </tr>
+      </tbody>
+    </ng-container>
+
+    <ng-template #emptyMessageIn>
+      <div class="flex m-3">
+        <span class="is-size-7">no {{ ruleType }} rules</span>
+      </div>
+    </ng-template>
+  </table>
+</div>

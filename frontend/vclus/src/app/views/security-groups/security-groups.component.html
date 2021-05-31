@@ -1,0 +1,115 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <div class="tabs is-small">
+                  <ul>
+                    <li [ngClass]="{ 'is-active': activeTab === 1 }" (click)="activeTab = 1">
+                      <a>
+                        Security Groups
+                      </a>
+                    </li>
+                    <li [ngClass]="{ 'is-active': activeTab === 2 }" (click)="activeTab = 2">
+                      <a>
+                        Create Security Group
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="level-right">
+              <div class="level-item">
+                <div [hidden]="activeTab === 2">
+                  <div class="field flex flex-wrap justify-flex-end">
+                    <a class="small-button is-light" [ngClass]="{ 'is-loading': refreshingGroups }"
+                      (click)="refreshGroups()">
+                      <span class="icon">
+                        <i class="fas fa-sync-alt"></i>
+                      </span>
+                      <span>refresh</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns is-centered">
+        <div class="column">
+          <create-security-group [hidden]="activeTab !== 2" [vpcIds]="vpcIds()" (onSuccess)="onSuccess()">
+          </create-security-group>
+
+          <div [hidden]="activeTab !== 1">
+            <nav class="panel has-text-centered">
+              <p class="panel-heading is-size-6 has-text-weight-bold">
+                Security Groups
+              </p>
+              <div class="panel-block">
+                <ng-container *ngIf="groups.length > 0; else emptyTable">
+                  <div class="table-container is-full-width">
+                    <table class="table is-full-width">
+                      <thead>
+                        <tr>
+                          <th scope="col">Id</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">VPC</th>
+                          <th scope="col">Description</th>
+                          <th scope="col" class="is-narrow"></th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr *ngFor="let g of groups">
+                          <td>
+                            {{ g.id }}
+                          </td>
+                          <td>
+                            {{ g.name }}
+                          </td>
+                          <td>
+                            {{ g.vpcId }}
+                          </td>
+                          <td>
+                            {{ g.description }}
+                          </td>
+                          <td>
+                            <div class="icon delete-icon" (click)="deleteGroup(g)" data-toggle="tooltip"
+                              title="Delete security group">
+                              <i class="far fa-trash-alt has-text-danger scale-1"></i>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-container>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!---------   TEMPLATES   --------->
+<ng-template #emptyTable>
+  <div class="column">
+    <span class="is-size-6">No security groups found in this region</span>
+  </div>
+</ng-template>
+
+<!---------   ERROR   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>

@@ -1,0 +1,122 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"vclus": {
+			"projectType": "application",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss"
+				}
+			},
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular-builders/custom-webpack:browser",
+					"options": {
+						"customWebpackConfig": {
+							"path": "./webpack.config.js",
+							"replaceDuplicatePlugins": true
+						},
+						"outputPath": "../../api/rest/static",
+						"index": "src/index.html",
+						"main": "src/main.ts",
+						"polyfills": "src/polyfills.ts",
+						"tsConfig": "tsconfig.app.json",
+						"aot": true,
+						"assets": [ "src/favicon.ico", "src/assets" ],
+						"styles": [
+							"node_modules/bulma-helpers/css/bulma-helpers.min.css",
+							"node_modules/bulma-extensions/bulma-tooltip/dist/css/bulma-tooltip.min.css",
+							"node_modules/bulma-extensions/bulma-checkradio/dist/css/bulma-checkradio.min.css",
+							"node_modules/bulma-extensions/bulma-quickview/dist/css/bulma-quickview.min.css",
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/bulma/css/bulma.css",
+							"src/assets/fontawesome/css/all.min.css",
+							"src/assets/styles/tailwind.css",
+							"src/assets/styles/_variables.scss",
+							"src/assets/styles/styles.scss"
+						],
+						"scripts": [
+							"node_modules/jquery/dist/jquery.min.js",
+							"node_modules/popper.js/dist/esm/popper.min.js",
+							"node_modules/popper.js/dist/umd/popper.min.js",
+							"node_modules/bulma-extensions/bulma-quickview/dist/js/bulma-quickview.min.js",
+							"node_modules/bulma-extensions/bulma-tagsinput/dist/js/bulma-tagsinput.min.js",
+							"src/assets/fontawesome/js/all.min.js"
+						]
+					},
+					"configurations": {
+						"production": {
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.prod.ts"
+								}
+							],
+							"optimization": true,
+							"outputHashing": "all",
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"aot": true,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "7mb",
+									"maximumError": "10mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "6kb",
+									"maximumError": "10kb"
+								}
+							]
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-builders/custom-webpack:dev-server",
+					"options": {
+						"customWebpackConfig": {
+							"path": "./webpack.config.js",
+							"replaceDuplicatePlugins": true
+						},
+						"browserTarget": "vclus:build",
+						"proxyConfig": "./proxy.conf.js"
+					},
+					"configurations": {
+						"production": {
+							"browserTarget": "vclus:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "vclus:build"
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [ "tsconfig.app.json", "tsconfig.spec.json" ],
+						"exclude": [ "**/node_modules/**" ]
+					}
+				}
+			}
+		}
+	},
+	"defaultProject": "vclus",
+	"schematics": {
+		"@schematics/angular:component": {
+			"styleext": "scss"
+		}
+	}
+}

@@ -1,0 +1,178 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="block">
+            <div class="field flex flex-wrap justify-flex-end">
+              <div class="field has-text-right">
+                <a class="small-button is-light has-margin-right-10" [ngClass]="{ 'is-loading': refreshingVpcs }"
+                  (click)="refreshVpcs()">
+                  <span class="icon">
+                    <i class="fas fa-sync-alt"></i>
+                  </span>
+                  <span>refresh</span>
+                </a>
+
+                <a class="small-button is-primary" (click)="toggleQuickView = true">
+                  <span class="icon">
+                    <i class="fas fa-plus"></i>
+                  </span>
+                  <span>create</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="field">
+              <nav class="panel has-text-centered">
+                <p class="panel-heading is-size-6 has-text-weight-bold">
+                  Virtual Private Clouds
+                </p>
+                <div class="panel-block">
+                  <ng-container *ngIf="vpcs.length > 0; else noVpcs">
+                    <div class="table-container is-full-width">
+                      <table class="table table-narrow is-full-width">
+                        <thead>
+                          <tr>
+                            <th scope="col" class="is-narrow">Name</th>
+                            <th scope="col">Id</th>
+                            <th scope="col">IPv4 CIDR</th>
+                            <th scope="col">Is Default</th>
+                            <th scope="col">State</th>
+                            <th scope="col" class="is-narrow"></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr *ngFor="let v of vpcs" class="leading-7">
+                            <td>
+                              <span>{{ v.name }}</span>
+                            </td>
+
+                            <td>
+                              <span>{{ v.id }} </span>
+                            </td>
+
+                            <td>
+                              <ul class="overflow-y-auto" style="max-height: 5rem">
+                                <li *ngFor="let c of v.ipv4Cidr">
+                                  {{ c }}
+                                </li>
+                              </ul>
+                            </td>
+
+                            <td>
+                              <span style="cursor: default">
+                                {{ v.isDefaultVpc }}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span> {{ v.state }} </span>
+                            </td>
+
+                            <td>
+                              <div class="icon delete-icon" (click)="deleteVpc(v)" data-toggle="tooltip"
+                                title="Delete VPC">
+                                <i class="far fa-trash-alt has-text-danger scale-1"></i>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-container>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!---------   QUICKVIEW   --------->
+<div *ngIf="toggleQuickView" class="modal-background"
+  style="position: fixed !important; background-color: rgb(10 10 10 / 25%) !important;z-index: 10 !important;"></div>
+
+<div id="quickviewDefault" class="quickview" [ngClass]="{ 'is-active': toggleQuickView }" style="top: 64px">
+  <header class="quickview-header bg-blue-900 h-16 text-white">
+    <p class="font-bold uppercase" style="word-spacing: 4px">Create Vpc</p>
+    <span class="delete" data-dismiss="quickview" (click)="toggleQuickView = false"></span>
+  </header>
+
+  <div class="quickview-body p-4">
+    <div class="quickview-block">
+      <spinner *ngIf="isCreatingVpc" loadingText="Creating VPC"></spinner>
+
+      <div class="grid grid-cols-10 gap-y-3">
+        <!-- Vpc Name -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm text-sm">Name Tag</span>
+        </div>
+
+        <div class="col-span-8">
+          <input class="input" type="text" name="vpcNameDom" #vpcNameDom="ngModel" [(ngModel)]="createVpcModal.name"
+            [autocomplete]="undefined" [ngClass]="{ 'is-danger':  createVpcModal.name.trim().length == 0}" [autocomplete]="undefined"
+            required />
+
+          <p *ngIf="vpcNameDom.invalid || createVpcModal.name.trim().length == 0" class="ml-1 text-red-500 text-xs">
+            required
+          </p>
+        </div>
+
+        <!-- Vpc Cidr -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm text-sm">IPv4 CIDR</span>
+        </div>
+
+        <div class="col-span-8">
+          <div class="flex justify-between items-center relative w-full">
+            <input class="input valid-cidr" type="text" name="vpcCidrDom" [(ngModel)]="createVpcModal.cidrIp" required
+              [autocomplete]="undefined" [autocomplete]="undefined" #vpcCidrDom="ngModel" [ngClass]="{ 
+                'valid-cidr': createVpcModal.hasValidCidr(),
+                'is-danger': !createVpcModal.hasValidCidr()
+               }" [ngClass]="{ 'is-danger': !createVpcModal.hasValidCidr() }" placeholder="ex: 10.0.0.0">
+
+            <span class="absolute font-bold ml-1 mr-3 cursor-pointer" style="right: -4px">
+              <select class="select is-small bg-transparent cursor-pointer" data-toggle="tooltip"
+                title="Select Instance Type" name="cidrSize" (change)="createVpcModal.cidrSize = $event.target.value">
+                <option *ngFor="let size of cidrSizes" [value]="size" [selected]="createVpcModal.cidrSize == size">
+                  /{{ size }}
+                </option>
+              </select>
+            </span>
+          </div>
+
+          <p *ngIf="!createVpcModal.hasValidCidr() || vpcCidrDom.invalid"
+            class="flex align-self-center ml-1 text-red-500 text-xs">
+            invalid CIDR</p>
+        </div>
+      </div>
+
+      <div class="quickview-footermodal-card-foot flex justify-flex-end align-items-center h-16 gap-3">
+        <button class="small-button w-full" (click)="toggleQuickView = false" [disabled]="isCreatingVpc">
+          Cancel
+        </button>
+        <button class="small-button is-primary w-full" (click)="createVpc()"
+          [disabled]="createVpcModal.name.trim().length == 0 || isCreatingVpc || !createVpcModal.hasValidCidr()">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!---------   TEMPLATES   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>
+
+<ng-template #noVpcs>
+  <div class="column">
+    <span class="is-size-6">No VPCs found in this region</span>
+  </div>
+</ng-template>

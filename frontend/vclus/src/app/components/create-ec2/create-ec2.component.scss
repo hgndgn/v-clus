@@ -1,0 +1,25 @@
+.cluster-actions {
+  background-color: var(--vclus-gray-light);
+}
+
+i {
+  font-size: 0.87rem;
+}
+
+.on-drop-toast-message {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+}
+
+.subnets-wrapper {
+  position: relative;
+  max-height: calc(100vh - 200px) !important;
+  overflow: auto;
+}
+
+.subnet-header {
+  min-height: 30px;
+  justify-content: center;
+  align-items: center;
+}

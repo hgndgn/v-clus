@@ -1,0 +1,243 @@
+@import './_variables';
+
+// NGX-TOAST
+@import '~ngx-toastr/toastr';
+
+// BULMA
+@import '~bulma';
+@import '~bulma-helpers';
+
+
+html {
+  height: 100%;
+  overflow: auto;
+}
+
+* {
+  outline: none !important;
+  box-shadow: unset !important;
+  box-sizing: inherit;
+
+  .button {
+    text-transform: uppercase;
+  }
+}
+
+.is-disabled {
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.quickview {
+  border-left: 1px solid rgb(172, 172, 172);
+}
+
+.valid-cidr {
+  border: 1px solid #21ca36 !important;
+}
+
+.is-danger {
+  border: 2px solid #fc8181 !important;
+}
+//  ----------- TABLE ----------- //
+.table {
+  @extend .is-narrow;
+  @extend .is-hoverable;
+  @extend .has-cursor-pointer;
+}
+
+table th {
+  text-align: center !important;
+}
+
+table td {
+  text-align: center !important;
+  overflow: hidden !important;
+  vertical-align: middle !important;
+  @extend .is-small;
+}
+
+table thead tr th {
+  font-size: 0.9rem !important;
+  min-width: 6rem !important;
+  border-top: unset !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+.is-rounded {
+  border-radius: 290486px !important;
+}
+
+//  ----------- OVERRIDE BULMA ----------- //
+
+
+.large-button {
+  font-size: 0.9rem !important;    
+  padding: 10px;
+  @extend .button;
+  @extend .is-large;
+}
+
+.is-primary {
+  color: #ffffff !important;
+  outline: none !important;
+  background: var(--vclus-primary) !important;
+  background-color: var(--vclus-primary) !important;
+  font-weight: 600 !important;
+
+  &:hover {
+    border: 1px solid var(--vclus-primary) !important;
+    background: var(--vclus-primary-hover) !important;
+    background-color: var(--vclus-primary-hover) !important;  
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06), 0 2px 25px rgba(0, 0, 0, 0.16) !important;
+  }
+}
+
+.small-button {
+  @extend .button;
+  -webkit-box-align: baseline;
+  align-items: baseline;
+  box-sizing: border-box;
+  font-style: normal;
+  font-weight: normal;
+  text-align: center;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.1s ease-out 0s,
+    box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
+  outline: none !important;
+  font-size: 0.75rem !important;    
+  border-radius: 290486px !important;
+  padding-left: 1em !important;
+
+  &:hover {
+    text-decoration: inherit;
+  }
+}
+
+.is-light {
+  border: 1px solid rgb(230, 230, 230) !important;
+}
+
+.columns {
+  min-width: 100% !important;
+  margin: 0 !important;
+}
+
+.modal-card {
+  position: absolute;
+  top: 1rem;
+  margin: 0;
+  padding: 10px;
+  height: calc(100vh - 4rem);
+  overflow: auto !important;
+}
+
+.is-small {
+  font-size: 0.75rem !important;
+}
+
+.columns {
+  max-width: 100% !important;
+}
+
+.tooltip {
+  position: absolute;
+}
+
+.field-label,
+.select {
+  border-radius: 2px !important;
+}
+
+.input,
+.field-label,
+.select {
+  font-size: 0.75rem !important;    
+}
+
+select,
+.select,
+.input {
+  border-radius: 1.5rem !important;
+}
+
+.is-checkradio[type='checkbox'] + label::after,
+.is-checkradio[type='checkbox'] + label:after {
+  border-color: var(--vclus-primary);
+}
+
+// ---------- GENERAL ---------- //
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  margin: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+label {
+  &::before {
+    outline: 0 !important;
+  }
+}
+
+button {
+  i {
+    margin-right: 4px;
+  }
+}
+
+i {
+  cursor: pointer;
+}
+
+// ---------- UTILS ---------- //
+
+a.has-text-white:hover {
+  color: white !important;
+}
+
+.stopped-state {
+  background-color: #f1993f !important;
+  color: #ffffff !important;
+}
+
+.is-disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.no-event {
+  pointer-events: none !important;
+  opacity: 0.5;
+}
+
+.has-opacity-25 {
+  opacity: 0.34;
+}
+
+.is-fw-mobile {
+  @extend .is-full-width-mobile;
+}
+
+.scale-1 {
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+// ---------- DRAG & DROP ---------- //
+.drag-hint {
+  border: 2px dotted rgb(233, 144, 174);
+}
+
+.drag-over {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0px 0px 10px rgb(232, 85, 135) !important;
+}
+
+// ---------- TOAST ---------- //
+.toast-container {
+  margin-top: 3rem;
+}

@@ -1,0 +1,53 @@
+<ng-container *ngIf="!hasError; else error">
+  <spinner *ngIf="isLoading; else main"></spinner>
+
+  <ng-template #main>
+    <div class="container justify-content-center pt-3">
+      <nav class="panel has-text-centered">
+        <p class="panel-heading is-size-6 has-text-weight-bold">
+          Amazon Machine Images
+        </p>
+        <div class="panel-block">
+          <ng-container *ngIf="images.length > 0; else emptyTable">
+
+            <div class="w-full h-full overflow-auto table-wrapper">
+              <table class="w-full h-full">
+                <thead>
+                  <tr>
+                    <th class="border-b pb-1">Image ID</th>
+                    <th class="border-b pb-1">Description</th>
+                    <th class="border-b pb-1">Architecture</th>
+                    <th class="border-b pb-1">Platform</th>
+                    <th class="border-b pb-1">Creation Date</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let i of images" class="leading-7">
+                    <td class="border-b">{{ i.ImageId }}</td>
+                    <td class="border-b">{{ i.Description }}</td>
+                    <td class="border-b">{{ i.Architecture }}</td>
+                    <td class="border-b">{{ i.PlatformDetails }}</td>
+                    <td class="border-b">{{ i.CreationDate | date}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
+      </nav>
+    </div>
+  </ng-template>
+
+</ng-container>
+
+<ng-template #emptyTable>
+  <div class="column">
+    <span class="is-size-6">No images found</span>
+  </div>
+</ng-template>
+
+<!---------   ERROR   --------->
+<ng-template #error>
+  <error></error>
+</ng-template>

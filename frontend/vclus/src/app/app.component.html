@@ -1,0 +1,33 @@
+<div class="modal" [ngClass]="{ 'is-active': show }">
+  <div class="modal-background"></div>
+
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Select AWS Region</p>
+    </header>
+
+    <section class="modal-card-body">
+      <div class="has-text-centered is-full-width">
+        <div class="select is-small is-narrow">
+          <select class="is-small" style="max-width: 150px" (change)="changeRegion($event.target.value)">
+            <option *ngFor="let r of regions" [value]="r.name">
+              {{ r.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <footer class="modal-card-foot">
+      <div class="has-text-centered is-full-width">
+        <button class="small-button is-primary" (click)="continue()">Continue</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<navbar class="w-full"></navbar>
+
+<div class="has-padding-10">
+  <router-outlet></router-outlet>
+</div>

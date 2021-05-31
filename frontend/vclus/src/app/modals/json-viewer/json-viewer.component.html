@@ -1,0 +1,26 @@
+<div class="modal is-active">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head flex justify-space-between">
+      <div class="flex flex-column">
+        <p class="modal-card-title is-full-width pb-1">
+          {{ data.name }}
+        </p>
+        <span class="has-text-grey text-sm pl-1">{{ data.description }}</span>
+      </div>
+      <button class="delete" aria-label="close" (click)="closeModal()"></button>
+    </header>
+
+    <section class="modal-card-body">
+      <div class="block json-viewer-wrapper">
+        <ngx-json-viewer [json]="vclusVpcs"></ngx-json-viewer>
+      </div>
+    </section>
+
+    <footer class="modal-card-foot has-text-right">
+      <div class="is-full-width has-text-right">
+        <button class="small-button is-light" (click)="closeModal()">Close</button>
+      </div>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<ng-container *ngIf="isLoading; else main">
+  <spinner></spinner>
+</ng-container>
+
+<ng-template #main>
+  <div *ngIf="!isLoading">
+    <div class="block">
+      <nav class="panel has-text-centered">
+        <div class="panel-heading is-paddingless">
+          <div class="flex justify-start w-full gap-2">
+            <div class="cluster-actions p-0 flex justify-between w-full bg-gray-200  border border-gray-300 border-l-b">
+              <div class="flex justify-start items-center w-full p-2">
+                <button class="large-button is-rounded is-light" draggable [dragScope]="'ec2'">
+                  <i class="fas fa-desktop mr-2"></i>
+                  <span class="font-bold uppercase">DRAG INSTANCE</span>
+                </button>
+              </div>
+              <div class="flex justify-flex-end gap-2 p-2 w-full">
+                <div class="flex justify-center items-center">
+                  <button class="small-button is-primary" (click)="onSubmit()">
+                    <i class="fas fa-check"></i>
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="clusters-wrapper rounded-b-lg" *ngIf="!isLoading"
+        [ngStyle]="{ padding: vclusVpcs.length == 0 ? '0' : ''}">
+        <ng-container *ngIf="vclusVpcs.length > 0">
+          <div class="w-full sm:grid sm:grid-cols-2 sm:gap-4">
+            <div *ngFor="let vpc of vclusVpcs">
+              <vclus-vpc *ngIf="vpc.subnets.length > 0" [vpc]="vpc" [keyPairs]="keyPairs"
+                [securityGroups]="getSecurityGroupsOfVpc(vpc.id)" [isAwsVpc]="true"></vclus-vpc>
+            </div>
+          </div>
+        </ng-container>
+        <div *ngIf="vclusVpcs.length == 0" class="flex w-full flex-column align-items-center justify-center p-2">
+          <span class="p-2">
+            No VPCs and subnets found
+          </span>
+          <a [routerLink]="['/vclus/vpcs']">Create VPC</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+<!---------   Error Modal on Submit   --------->
+<div *ngIf="showImageIdErrors">
+  <image-id-errors [imageIdErrors]="imageIdErrors" (onClose)="showImageIdErrors = false"></image-id-errors>
+</div>
+
+<!---------   TEMPLATES   --------->
+<ng-template #noVpcs>
+  <div class="columms">
+    <div class="column">
+      <p class="subtitle is-5">No VPCs found</p>
+
+      <a routerLink="/vpcs" class="is-link is-6"> Create VPC </a>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noSubnetsFound>
+  <div class="subnets-wrapper panel-block columns is-multiline is-marginless align-items-baseline">
+    <div class="column has-text-centered">No subnets found</div>
+  </div>
+</ng-template>
+
+<ng-template #noInstances>
+  <div class="columns">
+    <div class="column has-text-centered">
+      <span class="is-size-6">
+        <i>no instances</i>
+      </span>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,47 @@
+<div class="container justify-content-center pt-3">
+
+  <nav class="panel has-text-centered">
+    <p class="panel-heading is-size-6 has-text-weight-bold">
+      Security Rule Protocols
+    </p>
+    <div class="panel-block">
+      <div class="w-full h-full overflow-auto table-wrapper">
+        <table class="w-full h-full">
+          <thead>
+            <tr>
+              <th class="border-b" scope="col">ID</th>
+              <th class="border-b" scope="col">Name</th>
+              <th class="border-b" scope="col">Protocol</th>
+              <th class="border-b" scope="col">From Port</th>
+              <th class="border-b" scope="col">To Port</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let p of protocols">
+              <td class="border-b">
+                {{ p.id }}
+              </td>
+
+              <td class="border-b">
+                {{ p.name }}
+              </td>
+
+              <td class="border-b">
+                {{ p.protocol }}
+              </td>
+
+              <td class="border-b">
+                {{ p.fromPort }}
+              </td>
+
+              <td class="border-b">
+                {{ p.toPort }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </nav>
+</div>

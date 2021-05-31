@@ -1,0 +1,72 @@
+.modal-card-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 20px !important;
+}
+
+.table-wrapper {
+  min-width: 23rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.content {
+  max-height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.table-header-fixed {
+  background-color: #fff;
+  display: flex;
+  grid-gap: 4rem;
+  gap: 4rem;
+  position: absolute;
+  top: 0;
+  margin-left: 6.3rem;
+  padding-left: 1rem;
+  width: 26rem;
+}
+
+.interconnections-wrapper {
+  min-width: 30rem;
+  overflow: auto;
+
+  .vpc-name {
+    font-weight: 900;
+  }
+  .subnet-name {
+    font-weight: bold;
+    color: var(--vclus-primary-hover);
+  }
+  .instance-name {
+    min-width: max-content;
+  }
+
+  .table-container {
+    max-height: 7.7rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 6px;
+
+    .table {
+      min-width: 27rem;
+      border-radius: 6px;
+      background-color: aliceblue;
+
+      td {
+        padding: 3px;
+        width: 5rem;
+        overflow: hidden !important;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 5rem;
+      }
+    }
+  }
+}
+
+ul {
+  margin-top: 0 !important;
+}

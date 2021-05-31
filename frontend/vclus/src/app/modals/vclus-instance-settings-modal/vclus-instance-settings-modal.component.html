@@ -1,0 +1,397 @@
+<div *ngIf="toggleQuickView" class="modal-background"
+  style="position: fixed !important; background-color: rgb(10 10 10 / 25%) !important;z-index: 10 !important;"></div>
+
+<div *ngIf="toggleQuickView" id="quickviewDefault" class="quickview" [ngClass]="{ 'is-active': toggleQuickView }"
+  style="top: 64px; width: 36rem;">
+  <header class="quickview-header bg-blue-900 h-16 text-white">
+    <p class="font-bold uppercase" style="word-spacing: 4px">Configure Instance</p>
+    <span class="delete" data-dismiss="quickview" (click)="onClose(true)"></span>
+  </header>
+
+  <div class="quickview-body p-4">
+    <div class="quickview-block">
+
+      <div class="tabs is-small" *ngIf="!isAwsInstance">
+        <ul>
+          <li [ngClass]="{ 'is-active': activeTab == tab.SETTINGS }" (click)="activeTab = tab.SETTINGS">
+            <a>
+              Configuration
+            </a>
+          </li>
+          <li [ngClass]="{ 'is-active': activeTab == tab.INTERCONNECTIONS }" (click)="activeTab = tab.INTERCONNECTIONS">
+            <a>
+              Interconnections
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div [hidden]="activeTab != tab.SETTINGS">
+        <div class="grid grid-cols-6 gap-y-3">
+          <div class="col-span-6 bg-grey-200 rounded-full px-3">
+            <span class="font-bold text-sm text-sm">Instance Settings</span>
+          </div>
+
+          <!-- Type -->
+          <div class="col-span-1 pl-2">
+            <span class="font-bold text-sm text-sm">Type</span>
+          </div>
+
+          <div class="col-span-5">
+            <div class="select ">
+              <select class="control is-small tooltip" data-tooltip="Select Instance Type"
+                (change)="instance.type = $event.target.value">
+                <option *ngFor="let t of awsInstanceTypes" [selected]="t.apiName === instance.type"
+                  data-toggle="tooltip" data-placement="top" rel="tooltip"
+                  [title]="t.name + '\n' + t.memory + '\n' + t.storage">
+                  {{ t['apiName'] }}
+                </option>l
+              </select>
+            </div>
+          </div>
+
+          <!-- Amount -->
+          <div class="col-span-1 pl-2">
+            <span class="font-bold text-sm text-sm">Amount</span>
+          </div>
+
+          <div class="col-span-5">
+            <input id="amount" class="input" type="number" name="amount" #amount="ngModel" min="1" max="20"
+              [autocomplete]="undefined" [(ngModel)]="instance.amount" [ngClass]="{'is-danger': !instance.isValidAmount()}"
+              required />
+            <p *ngIf="amount.invalid || !instance.isValidAmount()" class="ml-1 text-red-500 text-xs">
+              Amount must be between 1 and 20!
+            </p>
+          </div>
+
+          <!-- Image ID -->
+          <div class="col-span-1 pl-2">
+            <span class="font-bold text-sm text-sm">Image ID</span>
+          </div>
+
+          <div class="col-span-5">
+            <input class="input" [value]="instance.imageId" #imageId="ngModel" name="imageId" type="text" [autocomplete]="undefined" required
+              [(ngModel)]="instance.imageId" [ngClass]="{ 'is-danger': imageId.invalid || !instance.imageId}" />
+            <p *ngIf="imageId.invalid" class="ml-2 text-red-500 text-xs">
+              required
+            </p>
+          </div>
+
+          <div class="col-span-6 bg-grey-200 rounded-full px-3">
+            <span class="font-bold text-sm text-sm">Key Pair</span>
+          </div>
+
+          <form #keyPairForm="ngForm" class="col-span-6">
+            <ng-container>
+              <div class="grid grid-cols-5 gap-y-3">
+                <!-- KeyPairOption -->
+                <div class="col-span-1 pl-2">
+                  <span class="font-bold text-sm text-sm">Option</span>
+                </div>
+
+                <div class="col-span-4">
+                  <div class="select">
+                    <select (change)="changeKeyPairOption($event.target.value)">
+                      <option *ngFor="let keyopt of keyPairOptions" [ngValue]="keyopt.key"
+                        [selected]="instance.keyPairOption == keyopt.key">
+                        {{ keyopt?.value }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- SELECT EXISTING KEYPAIR -->
+                <ng-container *ngIf="instance.keyPairOption == keyPairOption.SELECT">
+                  <div class="col-span-1 pl-2">
+                    <span class="font-bold text-sm text-sm">Key Pair</span>
+                  </div>
+
+                  <div class="col-span-4">
+                    <div class="select">
+                      <select (change)="instance.keyname = $event.target.value">
+                        <option *ngFor="let k of keyPairs" [ngValue]="k.KeyName"
+                          [selected]="instance.keyname == k.KeyName">
+                          {{ k.KeyName }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- INPUT KEYNAME -->
+                <ng-container *ngIf="instance.keyPairOption == keyPairOption.CREATE">
+                  <div class="col-span-1 pl-2">
+                    <span class="font-bold text-sm text-sm">Name</span>
+                  </div>
+                  <div class="col-span-4">
+                    <input type="text" class="input" name="keyname" [(ngModel)]="instance.keyname" #keyname="ngModel"
+                      placeholder="Key pair name" required [autocomplete]="undefined"
+                      [ngClass]="{ 'is-danger': keyname.invalid || !instance.keyname}" />
+                    <p *ngIf="keyname.invalid" class="ml-2 text-red-500 text-xs">
+                      required
+                    </p>
+                  </div>
+                </ng-container>
+              </div>
+
+            </ng-container>
+          </form>
+
+          <!-- Security Groups -->
+          <ng-container *ngIf="isAwsInstance">
+            <div class="col-span-6 bg-grey-200 rounded-full px-3">
+              <span class="font-bold text-sm text-sm">Security Groups</span>
+            </div>
+
+            <div class="col-span-6">
+              <div class="table-container is-full-width">
+                <table class="table is-narrow is-small">
+                  <thead>
+                    <tr>
+                      <th scope="col"></th>
+                      <th scope="col">Id</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let group of securityGroups" (click)="toggleSecurityGroup(group.id)">
+                      <td>
+                        <label class="checkbox">
+                          <input type="checkbox"
+                            [checked]="instance.securityGroups.includes(group.id) ? 'checked' : ''">
+                          <span class="text-sm ml-1"></span>
+                        </label>
+                      </td>
+
+                      <td>
+                        {{ group.id }}
+                      </td>
+
+                      <td>
+                        {{ group.name }}
+                      </td>
+
+                      <td>
+                        {{ group.description }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <div [hidden]="activeTab != tab.INTERCONNECTIONS">
+        <div [hidden]="instance.interconnections.inboundRules.length == 0">
+          <form #sgForm="ngForm">
+            <div class="grid grid-cols-6 gap-2">
+              <!-- GroupName -->
+              <div class="col-span-1">
+                <span class="font-bold text-sm text-sm">Group Name</span>
+              </div>
+
+              <div class="col-span-5">
+                <input id="groupname" class="input" type="text" name="groupname" #groupname="ngModel" [autocomplete]="undefined"
+                  [(ngModel)]="instance.interconnections.securityGroupName" [ngClass]="{'is-danger': groupname.invalid}"
+                  required />
+                <p *ngIf="groupname.invalid" class="ml-2 text-red-500 text-xs">required</p>
+              </div>
+
+              <!-- GroupDescription -->
+              <div class="col-span-1">
+                <span class="font-bold text-sm text-sm">Description</span>
+              </div>
+
+              <div class="col-span-5">
+                <input id="groupdescription" class="input" type="text" name="groupdescription" [autocomplete]="undefined"
+                  #groupdescription="ngModel" [(ngModel)]="instance.interconnections.securityGroupDescription"
+                  [ngClass]="{'is-danger': groupdescription.invalid}" required />
+                <p *ngIf="groupdescription.invalid" class="ml-2 text-red-500 text-xs">
+                  required
+                </p>
+              </div>
+            </div>
+          </form>
+          <hr class="my-1 mb-2" style="height: 1px" />
+        </div>
+
+        <div class="block">
+          <div class="grid grid-cols-12 gap-2">
+
+            <!-- Source -->
+            <div class="col-span-2">
+              <span class="font-bold text-sm text-sm">Source</span>
+            </div>
+
+            <!-- Select VPC -->
+            <div class="col-span-3">
+              <div class="select is-small w-full" data-toggle="tooltip" title="Select VPC">
+                <select class="w-full" data-toggle="tooltip" [title]="vpcs.length == 0 ? 'No VPCs found' : 'Select VPC'"
+                  (change)="setSourceVpcId($event.target.value)">
+                  <option selected value="" label="Select…" disabled [selected]="!interConnectionRule.sourceVpcId">
+                  </option>
+
+                  <option *ngFor="let vpc of vpcs" [value]="vpc.id"
+                    [selected]="vpc.id == interConnectionRule.sourceVpcId">
+                    {{ vpc.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- Select SUBNET -->
+            <div class="col-span-3">
+              <div class="select is-small w-full" data-toggle="tooltip" title="Select Subnet">
+                <select class="w-full" data-toggle="tooltip" [disabled]="!interConnectionRule.sourceVpcId"
+                  [title]="vpcs.length == 0 ? 'No Subnets found' : 'Select Subnet'"
+                  (change)="setSourceSubnetId($event.target.value)">
+                  <option selected value="" label="Select…" disabled [selected]="!interConnectionRule.sourceSubnetId">
+                  </option>
+
+                  <option *ngFor="let subnet of subnetsOfSelectedVpc" [value]="subnet.id">
+                    {{ subnet.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <!-- Select INSTANCE -->
+            <div class="col-span-3">
+              <div class="select is-small w-full" data-toggle="tooltip" title="Select Instance">
+                <select class="w-full" data-toggle="tooltip" [disabled]="!interConnectionRule.sourceSubnetId"
+                  [title]="vpcs.length == 0 ? 'No instances found' : 'Select Instance'"
+                  (change)="setSourceInstanceId($event.target.value)">
+                  <option selected value="" label="Select…" disabled [selected]="!interConnectionRule.sourceInstanceId">
+                  </option>
+
+                  <option *ngFor="let i of instancesOfSelectedSubnet" [value]="i.uniqueId"
+                    [disabled]="i.id == instance.id && i.subnetId == instance.subnetId && i.vpcId == instance.vpcId">
+                    {{ i.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Protocol/Port Range -->
+            <div class="col-span-2">
+              <span class="font-bold text-sm text-sm">Protocol</span>
+            </div>
+
+            <div class="col-span-3">
+              <div class="select is-small w-full">
+                <select class="w-full" (change)="setProtocol($event.target.value)">
+                  <option selected value="" label="Select…" disabled></option>
+                  <option *ngFor="let p of protocols" [ngValue]="p" [selected]="p.name == interConnectionRule.name">
+                    {{ p.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-span-6">
+              <div class="flex justify-start w-full gap-2">
+                <input class="input" style="width: 4rem;" type="number" name="fromPort" min="0" max="65535"
+                  placeholder="0" [(ngModel)]="interConnectionRule.fromPort" [autocomplete]="undefined"
+                  [disabled]="!interConnectionRule.isCustom()" pattern="[0-9]+" step="1"
+                  [ngClass]="{ 'is-danger': !interConnectionRule.isValidFromPort() }" #fromPort="ngModel" required />
+                <span>-</span>
+                <input class="input" style="width: 4rem;" type="number" name="toPort" min="0" max="65535"
+                  placeholder="65535" [(ngModel)]="interConnectionRule.toPort" [autocomplete]="undefined"
+                  [disabled]="!interConnectionRule.isCustom()" pattern="[0-9]+" step="1"
+                  [ngClass]="{ 'is-danger': !interConnectionRule.isValidToPort() }" #toPort="ngModel" required />
+              </div>
+            </div>
+
+
+            <!-- Description -->
+            <div class="col-span-2">
+              <span class="font-bold text-sm text-sm">Description</span>
+            </div>
+
+            <div class="col-span-8">
+              <input class="input" type="text" name="interConnectionRuleDesc" required [autocomplete]="undefined"
+                [(ngModel)]="interConnectionRule.description" />
+            </div>
+
+            <div class="col-span-2 text-right">
+              <button class="small-button" (click)="addInboundRule()" [disabled]="
+                interConnectionRule.description.length == 0 || 
+                !interConnectionRule.sourceInstanceId || 
+                fromPort.invalid || toPort.invalid">
+                <i class="fas fa-plus"></i>
+                add rule
+              </button>
+            </div>
+          </div>
+
+          <!-- InboundRules Table -->
+          <div *ngIf="interconnections.length > 0" class="interconnections-wrapper">
+
+
+            <div class="relative my-3">
+              <div class="font-bold text-sm mb-2">Inbound Rules</div>
+
+              <div class="content is-small">
+                <ul>
+                  <li *ngFor="let ico of interconnections" class="mb-2">
+                    <span class="text-xs vpc-name px-1 rounded-full">{{ ico.vpcName }}</span>
+                    <ul>
+                      <li *ngFor="let subnet of ico.subnets" class="mb-2">
+                        <div class="flex justify-between relative">
+                          <div class="table-header-fixed">
+                            <span class="font-bold text-xs has-text-grey">Description</span>
+                            <span class="font-bold text-xs has-text-grey">Protocol</span>
+                            <span class="font-bold text-xs has-text-grey">Port</span>
+                          </div>
+                          <span class="text-xs subnet-name px-1 rounded-full">
+                            {{ subnet.subnetName }}
+                          </span>
+                        </div>
+                        <ul>
+                          <li *ngFor="let instance of subnet.instances">
+                            <div class="flex gap-5">
+                              <span class="text-xs max-content instance-name">
+                                Instance-{{ instance.instanceId }}
+                              </span>
+                              <span class="table-wrapper w-full">
+                                <div class="table-container mt-0">
+                                  <table class="table">
+                                    <tbody>
+                                      <tr *ngFor="let rule of instance.rules">
+                                        <td class="is-small">
+                                          <span>{{ rule.description }}</span>
+                                        </td>
+                                        <td class="is-small">
+                                          <span>{{ rule.name }}</span>
+                                        </td>
+                                        <td class="is-small">
+                                          <span>{{ rule.fromPort }} - {{ rule.toPort }}</span>
+                                        </td>
+                                        <td class="is-small">
+                                          <a class="delete has-background-danger is-small"
+                                            (click)="removeInboundRule(rule)"></a>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </span>
+                            </div>
+                          </li>
+                        </ul>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quickview-footermodal-card-foot flex justify-flex-end align-items-center h-16 gap-3">
+        <button class="small-button w-full" (click)="onClose(true)">Cancel</button>
+        <button class="small-button is-primary w-full" (click)="onClose()"
+          [disabled]="keyPairForm.invalid || (sgForm.invalid && instance.interconnections.inboundRules.length > 0) || imageId.invalid || !instance.isValidAmount()">Save</button>
+      </div>
+    </div>
+  </div>

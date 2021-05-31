@@ -1,0 +1,17 @@
+.hide-select-arrow.select:not(.is-multiple):not(.is-loading)::after {
+  border-color: transparent !important;
+}
+
+.hide {
+  transform: translateX(100rem) !important;
+  background-color: red !important;
+}
+
+.cidr-tag {
+  background-color: #f5f5f5;
+  width: max-content;
+
+  // .modal-close::before, .delete::before, .modal-close::after, .delete::after {
+  //   background-color: rgb(184, 182, 182) !;
+  // }
+}

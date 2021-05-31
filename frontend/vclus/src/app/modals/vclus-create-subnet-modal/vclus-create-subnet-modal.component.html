@@ -1,0 +1,94 @@
+<div class="modal is-active">
+  <div class="modal-background" style="z-index: 10 !important;"></div>
+  <div class="modal-card" style="height: min-content;">
+    <header class="modal-card-head">
+      <ng-content #cardTitleElement></ng-content>
+      <button class="delete" aria-label="close" (click)="onClose()"></button>
+    </header>
+
+    <section class="modal-card-body">
+      <div class="grid grid-cols-10 gap-y-3">
+
+        <!-- Subnet Name -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm text-sm">Name</span>
+        </div>
+
+        <div class="col-span-8">
+          <input class="input" type="text" name="subNet" 
+          [ngClass]="{ 'is-danger': subNet.invalid && subNet.touched }"
+          [(ngModel)]="awsSubnet.name" #subNet="ngModel" required />
+
+          <p *ngIf="subNet.invalid && subNet.touched" class="ml-1 text-red-500 text-xs">
+            required
+          </p>
+        </div>
+
+        <!-- VPC -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm">VPC</span>
+        </div>
+
+        <div class="col-span-8">
+          <div class="select is-small w-full">
+            <select class="w-full" data-toggle="tooltip" title="Select VPC of the subnet"
+              (change)="setSelectedVpc($event.target.value)">
+              <option
+                *ngFor="let vpc of allVpcs"
+                [value]="vpc.id"
+              >
+                {{ vpc.id }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- VPC CIDR -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm">VPC CIDR</span>
+        </div>
+
+        <div class="col-span-8">
+          <div class="select is-small w-full">
+            <select class="w-full" data-toggle="tooltip" (change)="setSelectedVpcCidr($event.target.value)">
+              <option
+                *ngFor="let cidr of selectedAwsVpc.ipv4Cidr"
+                [value]="cidr"
+              >
+                {{ cidr }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Subnet CIDR -->
+        <div class="col-span-2">
+          <span class="font-bold text-sm">Subnet CIDR</span>
+        </div>
+
+        <div class="col-span-8">
+          <div class="flex justify-between items-center relative w-full">
+            <input class="input valid-cidr" name="vpcCidr" [(ngModel)]="awsSubnet.cidrIp" required
+              [autocomplete]="undefined" #cidr="ngModel" [ngClass]="{ 'is-danger': !awsSubnet.hasValidCidr() }"
+              placeholder="ex: 10.0.0.0">
+
+            <span class="absolute font-bold ml-1 mr-3 cursor-pointer" style="right: -4px">
+              <select class="select is-small bg-transparent cursor-pointer" data-toggle="tooltip" title="Select Instance Type"
+                name="cidrSize" (change)="awsSubnet.cidrSize = $event.target.value">
+                <option *ngFor="let size of cidrSizes" [value]="size"
+                  [selected]="awsSubnet.cidrSize == size">
+                  /{{ size }}
+                </option>
+              </select>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="modal-card-foot justify-flex-end">
+      <button class="small-button w-full" (click)="onClose(true)">Cancel</button>
+      <button class="small-button is-primary w-full" (click)="onClose()" [disabled]="subNet.invalid || !awsSubnet.hasValidCidr()">Save</button>
+    </footer>
+  </div>
+</div>

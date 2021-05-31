@@ -1,0 +1,45 @@
+.cluster-actions {
+  background-color: var(--vclus-gray-light);
+}
+
+.add-subnet {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background-color: lightblue;
+  cursor: pointer;
+
+  span {
+    text-transform: uppercase;
+  }
+}
+
+.save-nw {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.clusters-wrapper {
+  padding: 10px;
+  border: 1px solid var(--vclus-gray);
+  border-top: none;
+}
+  
+select {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.hide-select-arrow.select:not(.is-multiple):not(.is-loading)::after {
+  border-color: black !important;
+}
+
+.is-light {
+  font-size: 0.8rem !important;
+}
+
+.cidr-warning {
+  max-width: fit-content;
+}
